@@ -41,10 +41,66 @@
     "personal_publication": "API_ACCEPTED",
     "published_agent_version": "7",
     "endpoint_pin_and_auth_readback": "VERIFIED",
-    "store_availability": "UNVERIFIED",
-    "copilot_ui": "BLOCKED",
-    "teams_ui": "BLOCKED",
-    "declarative_control_registration": "HTTP_403"
+    "store_availability": {"copilot": "VERIFIED", "teams_personal_chat": "VERIFIED"},
+    "activity_route": {
+      "initial_defect": "missing api-version query",
+      "required_api_version": "2025-05-15-preview",
+      "corrected_bot_readback": "VERIFIED",
+      "pre_fix_ui_failures_excluded_from_capability_verdict": true
+    },
+    "copilot_ui": {
+      "cached_account_authorization_callback": "RETURNED_TO_CONVERSATION",
+      "post_fix_greeting": {"type": "invalid_request_error", "code": "content_filter", "target": "prompt"},
+      "post_fix_widget_probe": "NOT_SENT_INPUT_FOCUS_UNVERIFIED",
+      "widget_render_and_refresh": "UNVERIFIED"
+    },
+    "teams_ui": {"pre_fix_greeting": "NO_REPLY", "post_fix_widget_render_and_refresh": "UNVERIFIED"},
+    "declarative_control_registration": "SSO_AND_PORTAL_IMPORT_VERIFIED",
+    "declarative_control_deployment": {
+      "personal_sideload": "DENIED_BY_CUSTOM_APP_POLICY",
+      "governed_admin_upload": "SUCCEEDED",
+      "publish_and_install_audience": "SINGLE_TEST_USER",
+      "security_policy": "DEFAULT_UNCHANGED",
+      "catalog_launch": "OPENED_AFTER_ONE_REFRESH"
+    },
+    "declarative_control_dynamic_probe": {
+      "run_id": "control-first",
+      "sent_utc": "2026-10-22T22:47:12Z",
+      "response": "CONNECTOR_OR_TOOL_UNAVAILABLE",
+      "connector_sign_in_card": "NOT_OBSERVED",
+      "server_mcp_events_observed": 0,
+      "server_log_window_start_utc": "2026-10-22T22:45:00Z",
+      "server_log_watermark_utc": "2026-10-22T22:49:29.605495Z",
+      "upstream_discovery_and_auth_attempts": "UNKNOWN",
+      "widget_render_and_refresh": "UNVERIFIED"
+    },
+    "declarative_control_pinned_probe": {
+      "package_version": "1.0.1",
+      "pinned_tool": "show_table",
+      "schema_source": "AUTHENTICATED_TOOLS_LIST",
+      "auth_ui_metadata_and_single_user_assignment_preserved": true,
+      "host_updated_starter_verified": true,
+      "run_id": "control-pinned",
+      "sent_utc": "2026-10-22T22:56:58Z",
+      "response": "CONNECTOR_OR_TOOL_UNAVAILABLE",
+      "widget_or_auth_card": "NOT_OBSERVED",
+      "outcome_evidence": "NATIVE_ACCESSIBILITY_SNAPSHOT",
+      "screenshot": "NOT_CAPTURED_WINDOW_NOT_FOREGROUND",
+      "server_correlation": "NO_SERVER_SIDE_MCP_EVENT_OBSERVED",
+      "server_mcp_events_observed": 0,
+      "server_log_window_start_utc": "2026-10-22T22:56:00Z",
+      "server_log_watermark_utc": "2026-10-22T22:59:31.7767775Z",
+      "log_freshness_verified_after_separate_health_probe": true,
+      "upstream_discovery_auth_and_ingress": "UNKNOWN",
+      "widget_render_and_refresh": "UNVERIFIED"
+    }
+  },
+  "channel_timing_diagnostics": {
+    "direct_api_seconds": {"version_7": 35.69, "no_tools_version_1": 2.70},
+    "single_run_diagnostics_not_benchmark": true,
+    "version_1_ui_probe": "NOT_SENT_INPUT_FOCUS_UNVERIFIED",
+    "overlapping_warm_ui_retry": "EXCLUDED_FROM_MATCHED_COMPARISON",
+    "version_7_restored_readback": "VERIFIED"
   },
   "ordinary_large_results": [
     {"bytes": 1024, "status": "completed", "markers_correct": true, "input_tokens": 1533, "followup_correct": true},

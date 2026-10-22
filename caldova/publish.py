@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 from zipfile import ZipFile
 
 import httpx
+from mcp.types import Tool
 
 from caldova.cloud import az, load_state, request, token
 from caldova.experiments import record
@@ -51,7 +52,7 @@ def icon(size: int, outline: bool = False) -> bytes:
     return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header) + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b"")
 
 
-def control_documents(app_id: str, auth_config_id: str, mcp_url: str) -> dict:
+def control_documents(app_id: str, auth_config_id: str, mcp_url: str, pinned_tool: dict | None = None) -> dict:
     uuid.UUID(app_id)
     if not auth_config_id.strip() or "${" in auth_config_id:
         raise ValueError("A real OAuthPluginVault registration ID is required")
@@ -69,13 +70,32 @@ def control_documents(app_id: str, auth_config_id: str, mcp_url: str) -> dict:
         if "${" in text:
             raise ValueError(f"Unresolved template input in {name}")
         documents[name] = json.loads(text)
+    if pinned_tool is not None:
+        tool = Tool.model_validate(pinned_tool)
+        if tool.name != "show_table":
+            raise ValueError("The pinned diagnostic permits only show_table")
+        documents["manifest.json"]["version"] = "1.0.1"
+        plugin = documents["ai-plugin.json"]
+        plugin["functions"] = [{"name": tool.name, "description": tool.description}]
+        runtime = plugin["runtimes"][0]
+        runtime["run_for_functions"] = [tool.name]
+        runtime["spec"]["mcp_tool_description"] = {
+            "tools": [tool.model_dump(mode="json", by_alias=True, exclude_none=True)],
+        }
+        documents["declarativeAgent.json"]["conversation_starters"][0]["text"] = (
+            "Show the live Caldova fixture table for run ID control-pinned."
+        )
     return documents
 
 
-def package_control(publication: dict) -> None:
+def package_control(publication: dict, schema_path: Path | None = None) -> None:
     auth_id = os.environ["CALDOVA_AUTH_CONFIG_ID"]
     app_id = publication.get("control_app_id", str(uuid.uuid4()))
-    documents = control_documents(app_id, auth_id, os.environ["CALDOVA_MCP_URL"])
+    pinned_tool = None
+    if schema_path:
+        discovered = json.loads(schema_path.read_text())
+        pinned_tool = next(tool for tool in discovered["tools"]["tools"] if tool["name"] == "show_table")
+    documents = control_documents(app_id, auth_id, os.environ["CALDOVA_MCP_URL"], pinned_tool)
     target = Path(".azure/control-app.zip")
     target.parent.mkdir(exist_ok=True)
     with ZipFile(target, "w") as archive:
@@ -87,8 +107,56 @@ def package_control(publication: dict) -> None:
         if json.loads(archive.read("ai-plugin.json")) != documents["ai-plugin.json"]:
             raise RuntimeError("Packaged plugin differs from the requested configuration")
     publication.update(control_app_id=app_id, auth_config_id=auth_id)
+    publication["control_package_variant"] = "pinned-show-table" if schema_path else "dynamic-discovery"
+    publication["control_package_version"] = documents["manifest.json"]["version"]
     save(STATE, publication)
     print("Control package created privately; not registered, installed, or UI-verified.")
+
+
+def configure_control_sso(state: dict, publication: dict) -> None:
+    auth_id = os.environ["CALDOVA_AUTH_CONFIG_ID"]
+    if not auth_id.strip():
+        raise ValueError("Use the portal-generated auth configuration ID")
+    uri = os.environ["CALDOVA_SSO_APP_URI"]
+    if not uri.startswith("api://auth-") or not uri.endswith("/" + state["mcp_app_id"]):
+        raise ValueError("Use the portal-generated Application ID URI for this lab application")
+    graph = "https://graph.microsoft.com"
+    url = f"{graph}/v1.0/applications/{state['mcp_application_object_id']}"
+    before = request("GET", url, state["tenant"], graph)
+    record("m365-sso-app-before", before)
+    api = before["api"]
+    scope = next(item["id"] for item in api["oauth2PermissionScopes"]
+                 if item["value"] == "Mcp.Access" and item["isEnabled"])
+    token_store = "ab3be6b7-f5df-413d-ac2d-abf1e3fd9c0b"
+    clients = api.get("preAuthorizedApplications", [])
+    existing = next((item for item in clients if item["appId"] == token_store), None)
+    if existing is None:
+        clients.append({"appId": token_store, "delegatedPermissionIds": [scope]})
+    elif scope not in existing["delegatedPermissionIds"]:
+        existing["delegatedPermissionIds"].append(scope)
+    identifiers = list(dict.fromkeys([*before["identifierUris"], uri]))
+    web = before["web"]
+    redirect = "https://teams.microsoft.com/api/platform/v1.0/oAuthConsentRedirect"
+    redirects = list(dict.fromkeys([*web["redirectUris"], redirect]))
+    request("PATCH", url, state["tenant"], graph, json={
+        "identifierUris": identifiers,
+        "api": {**api, "preAuthorizedApplications": clients},
+        "web": {**web, "redirectUris": redirects},
+    })
+    after = request("GET", url, state["tenant"], graph)
+    record("m365-sso-app-after", after)
+    if (set(after["identifierUris"]) != set(identifiers)
+            or {item["appId"]: set(item["delegatedPermissionIds"])
+                for item in after["api"]["preAuthorizedApplications"]}
+            != {item["appId"]: set(item["delegatedPermissionIds"]) for item in clients}
+            or after["api"]["oauth2PermissionScopes"] != before["api"]["oauth2PermissionScopes"]
+            or after["appRoles"] != before["appRoles"]
+            or set(after["web"]["redirectUris"]) != set(redirects)
+            or after["api"]["requestedAccessTokenVersion"] != 2):
+        raise RuntimeError("SSO application readback did not preserve required settings")
+    publication.update(sso_app_uri=uri, auth_config_id=auth_id)
+    save(STATE, publication)
+    print("Lab SSO settings added and existing roles/scopes retained; user consent still requires host testing.")
 
 
 def provision_bot(state: dict, publication: dict) -> None:
@@ -201,15 +269,18 @@ def publish(state: dict, publication: dict, expected_version: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("operation", choices=["bot", "publish", "control-package"])
+    parser.add_argument("operation", choices=["bot", "publish", "control-package", "control-sso"])
     parser.add_argument("--expected-version")
+    parser.add_argument("--pin-widget-from", type=Path, help="Use show_table from a saved MCP discovery response")
     args = parser.parse_args()
     state = load_state()
     publication = json.loads(STATE.read_text()) if STATE.exists() else {}
     if args.operation == "bot":
         provision_bot(state, publication)
     elif args.operation == "control-package":
-        package_control(publication)
+        package_control(publication, args.pin_widget_from)
+    elif args.operation == "control-sso":
+        configure_control_sso(state, publication)
     elif not args.expected_version:
         parser.error("publish requires --expected-version from verified agent readback")
     else:

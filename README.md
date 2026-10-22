@@ -7,7 +7,7 @@ A reproducible Foundry Prompt Agent lab for four questions:
 3. Do MCP Apps render when the same Foundry agent is published to Microsoft 365 Copilot and Teams?
 4. Does the harness automatically offload large MCP responses to files?
 
-**[Read the observed results](docs/results.md).** Tool search works in the deployed ordinary Prompt Agent. Skill resources are discoverable, but automatic skill loading did not occur in the ordinary-agent configurations tested. The managed Copilot harness is subscription-gated. M365 UI tests are blocked pending authenticated access; API publishing is not a rendering test.
+**[Read the observed results](docs/results.md).** Tool search works in the deployed ordinary Prompt Agent. Skill resources are discoverable, but automatic skill loading did not occur in the ordinary-agent configurations tested. The managed Copilot harness is subscription-gated. The same ordinary agent is visible in Copilot and Teams, but MCP Apps rendering remains unverified: the corrected Copilot channel returned a service content-filter error, and the deployed declarative control reported its connector unavailable.
 
 ## Architecture
 

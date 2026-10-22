@@ -1,0 +1,109 @@
+{
+  "tested_date": "2026-10-22",
+  "ordinary_agent": {
+    "name": "caldova-prompt",
+    "pinned_version": "7",
+    "route": "direct authenticated MCP",
+    "authorization": ["Entra", "BotServiceRbac"],
+    "model": "gpt-5-mini",
+    "model_version": "2025-08-07"
+  },
+  "browser_identity": "Intended lab account verified in account menus; no credentials entered",
+  "publication_visibility": {
+    "copilot_web": "PASS",
+    "teams_web_personal_app": "PASS",
+    "note": "Actual host visibility supersedes earlier uncertain catalog/API readback."
+  },
+  "declarative_control": {
+    "sso_registration": "CREATED",
+    "scope": "Home organization and one lab app",
+    "entra_configuration": "ADDITIVE_SETTINGS_VERIFIED",
+    "existing_roles_scopes_clients_retained": true,
+    "package_schema_validation": "PASS",
+    "developer_portal_import": "PASS",
+    "portal_validation_message": "No issues found",
+    "user_sideload_installation": "BLOCKED",
+    "host_error": "Uploading custom apps is not allowed",
+    "policy_changed": false,
+    "governed_admin_deployment": "PASS",
+    "publish_audience": "Exact test administrator only",
+    "install_audience": "Exact test administrator only",
+    "security_template": "Existing default retained",
+    "copilot_catalog_visibility": "PASS",
+    "native_catalog_launch": "PASS after one refresh; initial load error recorded",
+    "control_first_response": "Connector/tool unavailable in this session",
+    "pinned_diagnostic": {
+      "package_version": "1.0.1",
+      "schema_source": "Authenticated MCP tools/list show_table descriptor",
+      "identity_auth_assignment_retained": true,
+      "admin_version_readback": "PASS",
+      "host_version_marker": "control-pinned starter observed before submission",
+      "run_id": "control-pinned",
+      "submitted_utc": "2026-10-22T22:56:58Z",
+      "response": "Tool unavailable in this session; no widget or connector sign-in card",
+      "evidence_type": "Native accessibility snapshot; foreground-only screenshot capture declined",
+      "application_server_log_correlation": {
+        "window_start_utc": "2026-10-22T22:56:00Z",
+        "watermark_utc": "2026-10-22T22:59:31.7767775Z",
+        "observed_mcp_tool_resource_auth_rejection_metadata_or_run_id_events": 0,
+        "health_probe_refreshed_log_freshness": true,
+        "upstream_discovery_authentication_and_ingress_attempts": "UNKNOWN"
+      }
+    },
+    "widget_rendering": "NOT_OBSERVED"
+  },
+  "ordinary_channel_probes": [
+    {
+      "surface": "Microsoft 365 Copilot web",
+      "probe": "Interactive widget",
+      "run_id": "copilot-live-20261022-a",
+      "observed": "Blank response; no widget iframe"
+    },
+    {
+      "surface": "Microsoft 365 Copilot web",
+      "probe": "Synthetic orchard record",
+      "run_id": "copilot-discovery-20261022-a",
+      "observed": "Blank response; conversation title subsequently showed timeout error after 45000ms"
+    },
+    {
+      "surface": "Microsoft 365 Copilot web",
+      "probe": "Fresh conversation, tool-free greeting",
+      "run_id": "copilot-greeting-20261022-a",
+      "observed": "Blank agent response"
+    },
+    {
+      "surface": "Teams web personal chat with published agent",
+      "probe": "Tool-free greeting",
+      "run_id": "teams-greeting-20261022-a",
+      "observed": "User message sent; no bot reply after several minutes"
+    }
+  ],
+  "initial_probe_boundary": "The probes above preceded correction of a missing api-version in the bot messaging URL; they cannot establish MCP Apps support.",
+  "messaging_route_correction": {
+    "api_version": "2025-05-15-preview",
+    "negative_probe_without_version": "Missing required query parameter: api-version",
+    "probe_with_version": "Reached Activity payload parser",
+    "bot_deployment_and_readback": "PASS",
+    "corrected_copilot_probe": "Reached User Sign-in card",
+    "cached_account_authorization": "Returned to same lab-agent conversation; no credentials or MFA entered",
+    "post_auth_greeting_retry": "Explicit Azure OpenAI content_filter error delivered through channel",
+    "normal_fresh_widget_probe": "NOT_SENT: native composer focus could not be verified",
+    "inference_and_widget_completion": "NOT_YET_VERIFIED"
+  },
+  "server_correlation": {
+    "window_utc": "2026-10-22T21:55:00Z/2026-10-22T22:10:00Z",
+    "latest_log_in_window_utc": "2026-10-22T22:06:59Z",
+    "matching_mcp_post_tool_or_auth_rejection_events": 0,
+    "interpretation": "Initial published probes did not visibly reach the MCP server. Root cause is unverified."
+  },
+  "diagnostic_controls": {
+    "direct_api_v7": {"status": "PASS", "elapsed_seconds": 35.69, "input_tokens": 828, "output_tokens": 113},
+    "direct_api_v1_no_tools": {"status": "PASS", "elapsed_seconds": 2.70, "input_tokens": 38, "output_tokens": 112},
+    "warm_v7_ui_retry": "EXCLUDED: endpoint selector changed 47 seconds after submission; no actual response version evidence",
+    "v1_no_tools_ui": "NOT_SENT: composer focus verification failed; no unverified keyboard input",
+    "interpretation": "Single-run API controls show latency as a confound, not the cause of channel failure."
+  },
+  "mcp_apps_conclusion": "INDETERMINATE: governed control is deployed but reports unavailable connector; ordinary route corrected and authenticated, but greeting retry was filtered",
+  "managed_harness_channels": "BLOCKED: subscription preview access",
+  "evidence_boundary": "Private screenshots, UI snapshots, deployment readback, and server logs are not committed. No claim of universal product non-support."
+}

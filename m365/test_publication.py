@@ -1,8 +1,10 @@
+import copy
+import os
 import struct
 import unittest
 from unittest.mock import patch
 
-from caldova.publish import control_documents, icon, provision_bot, publish
+from caldova.publish import configure_control_sso, control_documents, icon, provision_bot, publish
 
 
 class PackageTests(unittest.TestCase):
@@ -40,6 +42,20 @@ class PackageTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 control_documents("12345678-1234-4234-8234-123456789012", auth, url)
 
+    def test_pinned_diagnostic_retains_discovered_ui_metadata_and_auth(self):
+        tool = {"name": "show_table", "description": "Fixture", "inputSchema": {"type": "object"},
+                "_meta": {"ui": {"resourceUri": "ui://caldova/table"}}}
+        docs = control_documents("12345678-1234-4234-8234-123456789012",
+                                 "registration", "https://fixture.example/mcp", tool)
+        runtime = docs["ai-plugin.json"]["runtimes"][0]
+        self.assertEqual(runtime["run_for_functions"], ["show_table"])
+        self.assertEqual(runtime["spec"]["mcp_tool_description"]["tools"][0]["_meta"], tool["_meta"])
+        self.assertEqual(runtime["auth"], {"type": "OAuthPluginVault", "reference_id": "registration"})
+        self.assertEqual(docs["manifest.json"]["version"], "1.0.1")
+        with self.assertRaises(ValueError):
+            control_documents("12345678-1234-4234-8234-123456789012",
+                              "registration", "https://fixture.example/mcp", {**tool, "name": "other"})
+
     def test_icons_have_required_dimensions(self):
         for size in (32, 192):
             data = icon(size, outline=size == 32)
@@ -53,6 +69,39 @@ class PackageTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "latest version differs"):
                 publish({}, {}, "7")
             remote.assert_not_called()
+
+    def test_sso_preserves_existing_permissions_and_accepts_server_reordering(self):
+        app = {
+            "identifierUris": ["api://fixture-app"],
+            "api": {
+                "requestedAccessTokenVersion": 2,
+                "oauth2PermissionScopes": [{"id": "scope", "value": "Mcp.Access", "isEnabled": True}],
+                "preAuthorizedApplications": [{"appId": "existing-client", "delegatedPermissionIds": ["scope"]}],
+            },
+            "web": {"redirectUris": ["https://fixture.example/redirect"]},
+            "appRoles": [{"id": "existing-role", "value": "Mcp.Invoke"}],
+        }
+        original = copy.deepcopy(app)
+
+        def graph(method, *args, **kwargs):
+            if method == "PATCH":
+                app.update(copy.deepcopy(kwargs["json"]))
+                app["api"]["preAuthorizedApplications"].reverse()
+                return {}
+            return copy.deepcopy(app)
+
+        with patch.dict(os.environ, {
+            "CALDOVA_SSO_APP_URI": "api://auth-registration/fixture-app",
+            "CALDOVA_AUTH_CONFIG_ID": "registration",
+        }), patch("caldova.publish.request", side_effect=graph), patch("caldova.publish.save"), \
+                patch("caldova.publish.record"):
+            state = {"mcp_app_id": "fixture-app", "mcp_application_object_id": "fixture-object", "tenant": "tenant"}
+            configure_control_sso(state, {})
+            self.assertEqual(app["appRoles"], original["appRoles"])
+            self.assertEqual(app["api"]["oauth2PermissionScopes"], original["api"]["oauth2PermissionScopes"])
+            self.assertIn(original["api"]["preAuthorizedApplications"][0], app["api"]["preAuthorizedApplications"])
+            self.assertIn("api://fixture-app", app["identifierUris"])
+            self.assertIn("https://fixture.example/redirect", app["web"]["redirectUris"])
 
 
 if __name__ == "__main__":
