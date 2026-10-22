@@ -1,0 +1,61 @@
+{
+  "model": {"name": "gpt-5-mini", "version": "2025-08-07", "sku": "GlobalStandard"},
+  "ordinary_agent": {"kind": "prompt", "harness_property": "omitted"},
+  "managed_agent": {
+    "requested_harness": "github_copilot_preview",
+    "preview_header": "GitHubCopilot=V1Preview",
+    "http_status": 403,
+    "outcome": "subscription_not_enabled"
+  },
+  "tool_discovery": {
+    "catalog_tool_count": 26,
+    "search_initial_tools": ["tool_search", "call_tool"],
+    "search_agent_cases": [
+      {"domain": "orchards", "status": "PASS", "input_tokens": 2065, "calls": ["tool_search", "call_tool"]},
+      {"domain": "harbors", "status": "PASS", "input_tokens": 2067, "calls": ["tool_search", "call_tool"]},
+      {"domain": "rivers", "status": "PASS", "input_tokens": 2051, "calls": ["tool_search", "call_tool"]}
+    ],
+    "catalog_agent_cases": [
+      {"domain": "orchards", "status": "PASS", "input_tokens": 1084},
+      {"domain": "harbors", "status": "PASS", "input_tokens": 1082},
+      {"domain": "rivers", "status": "PASS", "input_tokens": 1090}
+    ]
+  },
+  "skills": {
+    "single_file_count": 3,
+    "archive_count": 1,
+    "metadata_excludes_body_markers": true,
+    "resource_reads_match_body_markers": true,
+    "ordinary_mcp_agent_used_skill": false,
+    "native_skill_diagnostic": {"marker_found": false, "response_status": "completed", "input_tokens": 34},
+    "managed_automatic_loading": "BLOCKED"
+  },
+  "mcp_apps": {
+    "unauthenticated_http_status": 401,
+    "direct_tool_metadata": "PASS",
+    "direct_structured_result": "PASS",
+    "direct_html_resource": "PASS",
+    "direct_protocol_refresh_counter": "PASS",
+    "toolbox_retains_ui_resource_uri": true,
+    "toolbox_resource_read": "No resource provider handles URI 'ui://caldova/table'.",
+    "personal_publication": "API_ACCEPTED",
+    "published_agent_version": "7",
+    "endpoint_pin_and_auth_readback": "VERIFIED",
+    "store_availability": "UNVERIFIED",
+    "copilot_ui": "BLOCKED",
+    "teams_ui": "BLOCKED",
+    "declarative_control_registration": "HTTP_403"
+  },
+  "ordinary_large_results": [
+    {"bytes": 1024, "status": "completed", "markers_correct": true, "input_tokens": 1533, "followup_correct": true},
+    {"bytes": 32768, "status": "incomplete", "reason": "max_output_tokens", "input_tokens": 19575, "max_output_tokens": 4096},
+    {"bytes": 262144, "status": "completed", "markers_correct": true, "input_tokens": 150158, "followup_input_tokens": 150185, "followup_correct": true},
+    {"bytes": 1048576, "http_status": 400, "error_code": "context_length_exceeded"}
+  ],
+  "automatic_offload": {
+    "ordinary": "NOT_OBSERVED",
+    "managed": "BLOCKED",
+    "internal_mechanism_visibility": "LIMITED"
+  },
+  "provenance": "Sanitized observations transcribed from ignored local service responses and MCP protocol evidence; not vendor support guarantees."
+}

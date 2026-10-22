@@ -1,0 +1,5 @@
+*
+!pyproject.toml
+!caldova/
+!caldova/**
+**/__pycache__/

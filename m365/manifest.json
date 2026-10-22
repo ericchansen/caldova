@@ -1,0 +1,34 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.24/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.24",
+  "version": "1.0.0",
+  "id": "${CONTROL_APP_ID}",
+  "developer": {
+    "name": "Caldova",
+    "websiteUrl": "https://github.com/ericchansen/caldova",
+    "privacyUrl": "https://privacy.microsoft.com",
+    "termsOfUseUrl": "https://www.microsoft.com/legal/terms-of-use"
+  },
+  "name": {
+    "short": "Caldova MCP Control",
+    "full": "Caldova MCP Apps Positive Control"
+  },
+  "description": {
+    "short": "Synthetic interactive MCP widget control",
+    "full": "Personal lab control for an authenticated MCP table widget and refresh counter."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#17324D",
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "caldovaControl",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  },
+  "validDomains": []
+}

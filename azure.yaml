@@ -1,0 +1,5 @@
+# yaml-language-server: $schema=https://aka.ms/azure-dev/azure.yaml.json
+name: caldova
+infra:
+  provider: bicep
+  path: infra

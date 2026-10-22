@@ -1,0 +1,26 @@
+[project]
+name = "caldova"
+version = "0.1.0"
+description = "Synthetic Foundry capability validation"
+requires-python = ">=3.11"
+dependencies = [
+  "mcp==1.30.0",
+  "httpx==0.28.1",
+  "PyJWT[crypto]==2.15.1",
+]
+
+[project.optional-dependencies]
+dev = ["ruff==0.17.1"]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["caldova*"]
+
+[tool.setuptools.package-data]
+caldova = ["*.html"]
+
+[tool.ruff]
+line-length = 110

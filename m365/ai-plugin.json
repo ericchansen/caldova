@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.4/schema.json",
+  "schema_version": "v2.4",
+  "name_for_human": "Caldova fixture",
+  "namespace": "caldova",
+  "description_for_human": "Authenticated synthetic table and refresh counter.",
+  "description_for_model": "Use this fixture for the synthetic interactive table and refresh counter.",
+  "functions": [],
+  "runtimes": [
+    {
+      "type": "RemoteMCPServer",
+      "auth": {
+        "type": "OAuthPluginVault",
+        "reference_id": "${AUTH_CONFIG_ID}"
+      },
+      "spec": {
+        "url": "${MCP_URL}"
+      },
+      "run_for_functions": ["*"]
+    }
+  ]
+}

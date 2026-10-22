@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Caldova MCP App</title>
+<style>
+body { font: 16px system-ui; padding: 16px; }
+td, th { padding: 8px; text-align: left; }
+button { padding: 8px 16px; }
+</style>
+<h1>Caldova synthetic table</h1>
+<p id="status" role="status">Waiting for host initialization.</p>
+<table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody id="rows"></tbody></table>
+<button id="refresh" disabled>Refresh</button>
+<script type="module">
+import { App } from "https://esm.sh/@modelcontextprotocol/ext-apps@2.0.3/app-with-deps";
+const app = new App({ name: "caldova", version: "0.1.0" });
+let runId;
+const status = document.getElementById("status");
+const button = document.getElementById("refresh");
+function render(result) {
+  if (result.isError) throw new Error(JSON.stringify(result.content));
+  const data = result.structuredContent;
+  if (!data?.run_id || !Array.isArray(data.rows)) throw new Error("Missing fixture data");
+  runId = data.run_id;
+  status.textContent = `Run ${runId}; refresh counter ${data.counter}`;
+  document.getElementById("rows").replaceChildren(...data.rows.map(row => {
+    const tr = document.createElement("tr");
+    for (const value of [row.name, row.value]) {
+      const td = document.createElement("td");
+      td.textContent = String(value);
+      tr.append(td);
+    }
+    return tr;
+  }));
+  button.disabled = false;
+}
+app.ontoolresult = result => {
+  try { render(result); } catch (error) { status.textContent = error.message; }
+};
+button.onclick = async () => {
+  button.disabled = true;
+  try {
+    render(await app.callServerTool({ name: "show_table", arguments: { run_id: runId } }));
+  } catch (error) {
+    status.textContent = `Refresh failed: ${error.message}`;
+    button.disabled = false;
+  }
+};
+try { await app.connect(); } catch (error) { status.textContent = `Host connection failed: ${error.message}`; }
+</script>
+</html>

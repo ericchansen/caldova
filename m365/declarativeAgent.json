@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json",
+  "version": "v1.6",
+  "name": "Caldova MCP Control",
+  "description": "Synthetic MCP Apps positive control, independent of Foundry routing.",
+  "instructions": "Use the Caldova synthetic MCP fixture to show its interactive table for the user's run ID. Do not replace the live widget with a text table, image, card, or external link. Report tool errors rather than inventing results.",
+  "actions": [
+    {
+      "id": "caldovaFixture",
+      "file": "ai-plugin.json"
+    }
+  ],
+  "conversation_starters": [
+    {
+      "title": "Show the control widget",
+      "text": "Show the live Caldova fixture table for run ID control-first."
+    }
+  ]
+}

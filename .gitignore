@@ -1,0 +1,14 @@
+.azure/
+.venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.ruff_cache/
+*.egg-info/
+evidence/
+dist/
+*.parameters.local.json
+infra/*.json
+!infra/main.parameters.json
