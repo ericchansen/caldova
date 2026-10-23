@@ -1,6 +1,7 @@
 """Personal-scope publishing; generated packages and identifiers stay ignored."""
 
 import argparse
+import copy
 import io
 import json
 import os
@@ -111,6 +112,54 @@ def package_control(publication: dict, schema_path: Path | None = None) -> None:
     publication["control_package_version"] = documents["manifest.json"]["version"]
     save(STATE, publication)
     print("Control package created privately; not registered, installed, or UI-verified.")
+
+
+def package_ordinary_commands(
+    source: Path = Path(".azure/foundry-app.zip"),
+    target: Path = Path(".azure/foundry-command-app.zip"),
+) -> None:
+    if source.resolve() == target.resolve():
+        raise ValueError("The command package must not overwrite the original Foundry package")
+    with ZipFile(source) as original:
+        names = original.namelist()
+        if len(names) != len(set(names)) or names.count("manifest.json") != 1:
+            raise ValueError("Expected an unambiguous package with one manifest.json")
+        manifest = json.loads(original.read("manifest.json"))
+        bots = manifest.get("bots", [])
+        if manifest.get("manifestVersion") != "1.29" or len(bots) != 1:
+            raise ValueError("Expected the existing manifest 1.29 package with one ordinary bot")
+        bot = bots[0]
+        if not {"personal", "copilot"} <= set(bot.get("scopes", [])) or "commandLists" in bot:
+            raise ValueError("Expected existing personal/copilot scopes and no command lists")
+        version = manifest["version"].split(".")
+        if len(version) != 3 or not all(part.isdecimal() for part in version):
+            raise ValueError("Expected a three-part numeric package version")
+        manifest["version"] = f"{version[0]}.{version[1]}.{int(version[2]) + 1}"
+        commands = [
+            {
+                "title": "Hello", "description": "Introduce the existing lab agent.",
+                "type": "prompt", "prompt": "Hello. Please introduce yourself in one short sentence.",
+            },
+            {
+                "title": "Show fixture table", "description": "Show the synthetic lab table.",
+                "type": "prompt",
+                "prompt": "Show the live Caldova fixture table for run ID ordinary-command-control.",
+            },
+        ]
+        bot["commandLists"] = [{"scopes": [scope], "commands": commands} for scope in ("personal", "copilot")]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with ZipFile(target, "x") as output:
+            output.comment = original.comment
+            for entry in original.infolist():
+                data = (json.dumps(manifest, indent=2).encode("utf-8")
+                        if entry.filename == "manifest.json" else original.read(entry))
+                output.writestr(copy.copy(entry), data)
+        with ZipFile(target) as output:
+            if output.namelist() != names or json.loads(output.read("manifest.json")) != manifest:
+                raise RuntimeError("Command package manifest or member list differs from the requested result")
+            if any(output.read(name) != original.read(name) for name in names if name != "manifest.json"):
+                raise RuntimeError("Command packaging changed another package member")
+    print(f"Created {target}; original preserved. No app update, endpoint change, or message submission.")
 
 
 def configure_control_sso(state: dict, publication: dict) -> None:
@@ -269,10 +318,15 @@ def publish(state: dict, publication: dict, expected_version: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("operation", choices=["bot", "publish", "control-package", "control-sso"])
+    parser.add_argument("operation", choices=[
+        "bot", "publish", "control-package", "control-sso", "ordinary-command-package",
+    ])
     parser.add_argument("--expected-version")
     parser.add_argument("--pin-widget-from", type=Path, help="Use show_table from a saved MCP discovery response")
     args = parser.parse_args()
+    if args.operation == "ordinary-command-package":
+        package_ordinary_commands()
+        return
     state = load_state()
     publication = json.loads(STATE.read_text()) if STATE.exists() else {}
     if args.operation == "bot":

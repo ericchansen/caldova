@@ -1,13 +1,78 @@
 import copy
+import json
 import os
 import struct
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
+from zipfile import ZipFile
 
-from caldova.publish import configure_control_sso, control_documents, icon, provision_bot, publish
+from caldova.publish import (
+    configure_control_sso,
+    control_documents,
+    icon,
+    package_ordinary_commands,
+    provision_bot,
+    publish,
+)
 
 
 class PackageTests(unittest.TestCase):
+    def test_ordinary_commands_preserve_identity_auth_and_package_members(self):
+        manifest = {
+            "manifestVersion": "1.29", "version": "1.0.0", "id": "existing-app",
+            "bots": [{"botId": "existing-bot", "scopes": ["personal", "team", "groupChat", "copilot"],
+                      "supportsFiles": True, "isNotificationOnly": False}],
+            "webApplicationInfo": {"id": "existing-bot", "resource": "api://fixture.example"},
+            "permissions": ["identity"], "validDomains": ["login.microsoftonline.com"],
+            "copilotAgents": {"customEngineAgents": [{"id": "existing-bot", "type": "bot",
+                                                     "disclaimer": {"text": "Verify results."}}]},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = Path(directory) / "original.zip", Path(directory) / "commands.zip"
+            with ZipFile(source, "w") as archive:
+                archive.comment = b"preserve archive metadata"
+                archive.writestr("manifest.json", json.dumps(manifest))
+                archive.writestr("icon.png", b"fixture-icon-bytes")
+                archive.writestr("other/config.json", '{"preserve":true}')
+            original_bytes = source.read_bytes()
+            package_ordinary_commands(source, target)
+            self.assertEqual(source.read_bytes(), original_bytes)
+            with ZipFile(target) as archive:
+                updated = json.loads(archive.read("manifest.json"))
+                self.assertEqual(archive.comment, b"preserve archive metadata")
+                self.assertEqual(archive.read("icon.png"), b"fixture-icon-bytes")
+                self.assertEqual(archive.read("other/config.json"), b'{"preserve":true}')
+            self.assertEqual(updated["version"], "1.0.1")
+            lists = updated["bots"][0].pop("commandLists")
+            self.assertEqual([item["scopes"] for item in lists], [["personal"], ["copilot"]])
+            for item in lists:
+                self.assertEqual([c["type"] for c in item["commands"]], ["prompt", "prompt"])
+                self.assertEqual([c["title"] for c in item["commands"]], ["Hello", "Show fixture table"])
+                self.assertEqual([c["prompt"] for c in item["commands"]], [
+                    "Hello. Please introduce yourself in one short sentence.",
+                    "Show the live Caldova fixture table for run ID ordinary-command-control.",
+                ])
+            updated["version"] = manifest["version"]
+            self.assertEqual(updated, manifest)
+            with self.assertRaises(FileExistsError):
+                package_ordinary_commands(source, target)
+
+    def test_ordinary_commands_refuse_overwrite_or_replacing_existing_commands(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, target = Path(directory) / "original.zip", Path(directory) / "commands.zip"
+            with self.assertRaises(ValueError):
+                package_ordinary_commands(source, source)
+            with ZipFile(source, "w") as archive:
+                archive.writestr("manifest.json", json.dumps({
+                    "manifestVersion": "1.29", "version": "1.0.0",
+                    "bots": [{"scopes": ["personal", "copilot"], "commandLists": []}],
+                }))
+            with self.assertRaises(ValueError):
+                package_ordinary_commands(source, target)
+            self.assertFalse(target.exists())
+
     def test_bot_passes_required_activity_version_to_bicep_and_checks_readback(self):
         endpoint = "https://fixture.example/api/projects/lab"
         expected = endpoint + "/agents/caldova-prompt/endpoint/protocols/activityProtocol?api-version=2025-05-15-preview"

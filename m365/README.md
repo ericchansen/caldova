@@ -53,6 +53,22 @@ Generated state is saved in `.azure/m365-state.json`; the Foundry package is `.a
 
 The lab publication uses app package version `1.0.0`. Do not rerun a successful publish to test availability: the service rejects duplicate package versions. Inspect the existing app instead. A deliberate metadata update requires an incremented package version; changing backend traffic uses the agent endpoint selector.
 
+### Prepare native ordinary-agent prompt commands
+
+The offline helper derives a separate package from the existing Foundry-generated ZIP:
+
+```powershell
+python -m caldova.publish ordinary-command-package
+```
+
+It writes `.azure/foundry-command-app.zip` without overwriting `.azure/foundry-app.zip` or an existing output. Only the package patch version and the ordinary bot's `commandLists` change. All app/bot IDs, `webApplicationInfo`, permissions, routing metadata, custom-engine fields, and other archive members are preserved. Existing command lists or missing personal/Copilot scopes cause an explicit error rather than replacement or scope expansion.
+
+The **Hello** and **Show fixture table** commands are `type: prompt` entries in the existing personal and Copilot scopes. [Microsoft's prompt-starter guidance](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/conversations/prompt-starters) describes the **View Prompts** flyout and insertion of the full prompt into the composer. Selection is not evidence of a sent message: verify the actual app identity, account, and exact composer text before using native **Send**.
+
+Package creation does not update the app, call the Foundry publication API, change endpoint traffic, or bypass the latest-version guard. Validate the result against the [manifest 1.29 schema](https://developer.microsoft.com/json-schemas/teams/v1.29/MicrosoftTeams.schema.json). Upload only through an in-place update of the same editable governed app, after confirming its existing audience can be retained. If that action is unavailable, stop without creating a duplicate app, republishing a newer backend version, or broadening deployment.
+
+The generated command package passed that schema validation and preservation checks. The inspected ordinary registry entry matched the original bot identity, showed version `1.0.0` and publisher type **Your users**, and exposed no **Update in store** action. The experiment stopped before upload: the distinct ZIP is prepared, but no command package was installed and no prompt command was invoked. This is an update-path limitation in the inspected UI, not evidence that the prompt commands fail at runtime.
+
 ## Complete the positive control
 
 Reuse the existing verified lab-account browser session. Do not create repeated login windows. User sideloading remains prohibited; do not change that policy. The current control was deployed through the administrator-governed route with availability and installation scoped to one test user.
