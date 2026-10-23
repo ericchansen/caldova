@@ -44,6 +44,26 @@
       "downstream_header_forwarding": "NOT_OBSERVED",
       "ordinary_support_contract": "REQUIRES_CLARIFICATION",
       "published_version_7_preserved": true
+    },
+    "mixed_toolbox_control": {
+      "toolbox_version": "4",
+      "skill_version": "2",
+      "allowed_tool": "caldova___lookup_orchards",
+      "cases": [
+        {"configuration": "downloaded body preloaded into instructions", "agent_version": "18", "response_status": "completed", "tool_control_passed": true, "skill_marker_found": true},
+        {"configuration": "toolbox without preload", "agent_version": "19", "response_status": "completed", "tool_control_passed": true, "skill_marker_found": false},
+        {"configuration": "toolbox plus native skill reference", "agent_version": "20", "response_status": "completed", "tool_control_passed": true, "skill_marker_found": false}
+      ],
+      "inline_control_is_progressive_loading": false,
+      "published_endpoint_unchanged": true,
+      "unrestricted_tool_attempts_excluded": true
+    },
+    "skills_only_search_entrypoint": {
+      "toolbox_version": "5",
+      "configured_search_name": "skill_search",
+      "callable_tool_count": 0,
+      "resource_count": 2,
+      "agent_inference_run": false
     }
   },
   "mcp_apps": {
@@ -54,6 +74,17 @@
     "direct_protocol_refresh_counter": "PASS",
     "toolbox_retains_ui_resource_uri": true,
     "toolbox_resource_read": "No resource provider handles URI 'ui://caldova/table'.",
+    "ordinary_responses_ui_metadata_probe": {
+      "agent_version": "7",
+      "route": "direct MCP",
+      "show_table_call_succeeded": true,
+      "response_status": "completed",
+      "ui_resource_uri_exposed": false,
+      "structured_content_field_exposed": false,
+      "message_content_types": ["output_text"],
+      "host_rendering": "NOT_TESTED",
+      "out_of_band_metadata": "UNKNOWN"
+    },
     "personal_publication": "API_ACCEPTED",
     "published_agent_version": "7",
     "endpoint_pin_and_auth_readback": "VERIFIED",
@@ -89,6 +120,17 @@
       "server_log_watermark_utc": "2026-10-22T22:49:29.605495Z",
       "upstream_discovery_and_auth_attempts": "UNKNOWN",
       "widget_render_and_refresh": "UNVERIFIED"
+    },
+    "sso_followup": {
+      "identifier_scope_broker_preauthorization_and_redirect_verified": true,
+      "saved_registration_base_url_scope_and_app_binding_match": true,
+      "operator_token_for_sso_alias_accepted_by_mcp": true,
+      "operator_token_audience_matches_existing_verifier": true,
+      "m365_token_store_exchange_proven": false,
+      "noninteractive_signin_query_status": 429,
+      "oauth_guide_specific_app_binding_warning": "APPLICABILITY_TO_ENTRA_SSO_UNTESTED",
+      "app_binding_change_authorized": false,
+      "app_binding_changed": false
     },
     "declarative_control_pinned_probe": {
       "package_version": "1.0.1",

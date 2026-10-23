@@ -49,6 +49,22 @@ These are **failed functional cases**, not passing tests merely because failure 
 
 The recorded-header probes and live definition readbacks are the comparison evidence. A separate check of the actual `agent_endpoint` verified version 7 at 100% with Responses, Activity, Entra, and BotServiceRbac unchanged.
 
+### Isolating the consuming runtime
+
+Microsoft's [Prompt Agent shipping-skill sample](https://github.com/Azure/azure-sdk-for-python/blob/84df3628/sdk/ai/azure-ai-projects/samples/agents/tools/sample_toolbox_with_shipping_skill.py) explicitly downloads the skill and inserts its content into agent instructions. That is preloading, not automatic progressive consumption through MCP. Its comment saying Prompt Agents have no native skill-reference field is in tension with the newer [agent schema](https://github.com/Azure/azure-rest-api-specs/blob/2927d4ca/specification/ai-foundry/data-plane/Foundry/src/agents/models.tsp), which declares `PromptAgentDefinition.skills`. Neither source alone settles the native runtime's behavior.
+
+A stronger control put the same orchard skill beside a working authenticated MCP lookup tool in Toolbox version 4. All cases used the same task and one permitted lookup tool; the inline control alone received the previously retrieved skill body in its instructions.
+
+| Ordinary-agent configuration | Version | Lookup succeeds | Required skill phrase returned |
+| --- | --- | --- | --- |
+| Toolbox plus downloaded-body preload | 18 | Yes | Yes |
+| Same Toolbox without preload | 19 | Yes | No |
+| Same Toolbox plus native skill reference | 20 | Yes | No |
+
+All three responses completed. This rules out an empty tool catalog or broken generic tool invocation as sufficient explanations for these failures. It isolates the missing behavior to making the skill usable by the consuming runtime; resource-specific authorization and hidden runtime processing are still not visible. The working preload is an honest alternative for applying instructions, not a substitute for proving progressive discovery. An earlier unrestricted-tool attempt made unrelated tool calls and is excluded from this controlled comparison.
+
+The sample-style skills-only Toolbox with a configured search entrypoint (version 5) still returned zero callable tools and two skill resources. No agent inference was run against that configuration. Adding the search definition did not expose a callable skill loader in that observed protocol surface.
+
 ## MCP Apps evidence
 
 The direct server passed authenticated protocol checks:
@@ -65,6 +81,8 @@ No resource provider handles URI 'ui://caldova/table'.
 ```
 
 That is a concrete failure of the tested Toolbox resource route. It does **not** prove that direct-MCP tools on a Foundry agent cannot render through the Microsoft 365 channel.
+
+A separate direct-MCP `show_table` request through ordinary agent version 7 completed successfully. However, its exposed Responses payload contained neither `ui://caldova/table` nor a structured-content field: the listed tool retained name, description, input schema, and annotations, and the final message was `output_text`. This identifies an additional visible metadata boundary before the UI channel. It does not reveal out-of-band Activity metadata or establish whether a particular host rendered a widget.
 
 Personal publishing of the ordinary agent version 7 was accepted. Readback verified that the endpoint retained Responses, enabled Activity, retained Entra authentication, added `BotServiceRbac`, and pinned all traffic to that version. The downloaded app package matched the bot identity.
 
@@ -83,6 +101,12 @@ A bounded diagnostic updated the same governed control to version `1.0.1`, pinni
 Separate direct-API no-tool diagnostics completed in 35.69 seconds on version 7 and 2.70 seconds on the no-tools version 1. These single runs are not a benchmark or causal comparison. A temporary version-1 channel control was never submitted because input focus could not be verified; version 7 was restored and read back. A version-7 warm UI retry overlapped the pin change and is excluded from matched-version comparisons.
 
 Existing policy-managed Foundry diagnostic settings were readable without changing logging or permissions. The post-authentication channel window contains a `Projects_Wildcard_Post` with HTTP 202 followed by a `create_response` with HTTP 400 sharing the same correlation ID. The model/deployment is `gpt-5-mini`, version `2025-08-07`, also used by the successful direct requests. This locates a correlated model-service failure after the accepted project request; it does not identify the rejected prompt content or a separate channel filter. The queried logs expose metadata, not the full prompt or filter category; safety metrics did not provide usable category data for the window. A scoped Entra sign-in query also succeeded but returned no matching MCP-resource events. Absent events are not proof that no upstream authorization attempt occurred. The declarative control remains a separate M365 plugin-to-MCP path, not the Foundry bot path.
+
+Further SSO checks verified the registered identifier URI, delegated scope, token-store preauthorization, and consent redirect. The existing operator obtained a token for the SSO resource alias, and the MCP server accepted it and listed 26 tools. Its v2 audience was the existing application ID, which the verifier already accepts. This is an operator control, not proof that the M365 token store obtains or sends the same token. Subsequent explicitly noninteractive sign-in queries were throttled (HTTP 429); their absence cannot be treated as a negative authentication result.
+
+There is a concrete app-binding compatibility lead: the [OAuth/MCP guide](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-oauth#use-the-teams-developer-portal) warns that restricting a registration to a specific Teams app can cause 404s because Copilot does not resolve that ID for MCP calls. The [Entra SSO guide](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-entra-sso#use-the-teams-developer-portal) still describes app binding. Saved post-save values confirm that this lab's registration is specifically bound to the intended app, with the correct base URL and scope. Applicability of the OAuth warning to this SSO configuration is unproven. A temporary Any-Teams-app test was not authorized; the binding remains unchanged.
+
+A subsequent safe-input check and a [documented bot-chat prefill deep link](https://learn.microsoft.com/microsoftteams/platform/concepts/build-and-test/deep-link-teams#deep-link-to-navigate-to-chat-messages) did not produce a verified composer value. Nothing was typed globally or sent. These are operational input failures, not additional model or MCP Apps outcomes.
 
 ## Large-result observations
 
@@ -120,6 +144,9 @@ Raw requests, service responses, protocol discovery, assessments, and publicatio
 - `skill-contract-protocol-header-off.json`, `skill-contract-protocol-header-on.json`
 - `compact-spill-coordinator-assessment.json`, `budget-coordinator-tool-differences.json`
 - `diagnosis-foundry-channel-log-summary.json`, `diagnosis-channel-model-comparison.json`, `diagnosis-control-signin-read.json`
+- `bounded-mixed-summary.json`, `skill-search-entrypoint-discovery.json`
+- `ui-metadata-direct-foundry-assessment.json`
+- `diagnosis-sso-effective-app-contract.json`, `diagnosis-sso-alias-mcp-auth-control.json`
 
 To close the remaining questions: obtain the supported ordinary-agent skill-consumption contract or product-side trace for the failed cases; obtain managed-harness subscription enablement; resolve the control's unavailable connector without relaxing security; and submit a benign ordinary-agent widget probe through the corrected channel when safe input is available. Verify actual widget rendering and a refresh round-trip separately in each host. Browser authentication and control registration are no longer the outstanding prerequisites. Managed access blocks only managed cases, not independent ordinary-agent investigations. [M365 continuation instructions](../m365/README.md) distinguish publication from rendering.
 
