@@ -7,7 +7,7 @@ A reproducible Foundry Prompt Agent lab for four questions:
 3. Do MCP Apps render when the same Foundry agent is published to Microsoft 365 Copilot and Teams?
 4. Does the harness automatically offload large MCP responses to files?
 
-**[Read the observed results](docs/results.md).** Tool search works in the deployed ordinary Prompt Agent. Skill resources are discoverable, but automatic skill loading did not occur in the ordinary-agent configurations tested. The managed Copilot harness is subscription-gated. The same ordinary agent is visible in Copilot and Teams, but MCP Apps rendering remains unverified: the corrected Copilot channel returned a service content-filter error, and the deployed declarative control reported its connector unavailable.
+**[Read the observed results](docs/results.md).** Tool search works in the deployed ordinary Prompt Agent. Skill resource delivery passes, but the tested ordinary-agent skill-use cases fail, including explicit preview-header probes; the runtime cause remains unresolved. A revised compact extraction task succeeds at 32 KiB and retrieves a previously unreported value without refetching; this does not prove file offload. The managed Copilot harness is subscription-gated. The same ordinary agent is visible in Copilot and Teams, but MCP Apps rendering remains unverified: the corrected Copilot channel returned a service content-filter error, and the deployed declarative control reported its connector unavailable.
 
 ## Architecture
 
@@ -110,7 +110,7 @@ Connections, agent versions, skill versions, and Toolbox versions are data-plane
 .\.venv\Scripts\python.exe -m caldova.experiments spill --sizes 1024 32768
 ```
 
-Every service response is saved before interpretation. Repeated runs get distinct evidence files. Model calls incur usage charges. The payload ladder ends at 1 MiB and stops escalation after a service error.
+Requests are recorded before transport, including the explicit `Foundry-Features` value but not authorization headers; responses are saved before interpretation. Repeated runs get distinct evidence files. Model calls incur usage charges. The payload ladder ends at 1 MiB and stops escalation after a service error. Extraction requires exactly the BEGIN and MIDDLE values; the follow-up requests the withheld END value and rejects a fresh `large_result` call as proof of retention.
 
 Discovery creates explicit agent versions but does not change a published endpoint's pinned version. Keep the publication pin on the direct-MCP, widget-capable version unless deliberately testing a different route. [M365 setup and continuation](m365/README.md) cover the publishing helper, authenticated positive-control manifest templates, and outstanding access requirements.
 
@@ -118,6 +118,7 @@ Discovery creates explicit agent versions but does not change a published endpoi
 
 - `tools/list` changing from the full catalog to search meta-tools proves a smaller initial protocol surface. It does not guarantee lower total token usage.
 - Skill metadata and body/resource reads prove delivery. Only agent traces or observable loading can establish automatic progressive use by that agent.
+- A missing required skill answer is a failed functional case, even when the failure cause or loading mechanism remains indeterminate. Header toggles and definition readback do not reveal hidden runtime operations.
 - Filesystem capabilities are not proof of automatic spill-to-disk. The primary test does not ask for file writes, use Code Interpreter, or pre-save data on the MCP server.
 - A completed answer is not proof of offload. Inspect raw result size, usage, file references, selective reads, and failure boundaries.
 - Our local evidence files are created by the test runner, not the Foundry harness.

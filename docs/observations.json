@@ -28,7 +28,23 @@
     "resource_reads_match_body_markers": true,
     "ordinary_mcp_agent_used_skill": false,
     "native_skill_diagnostic": {"marker_found": false, "response_status": "completed", "input_tokens": 34},
-    "managed_automatic_loading": "BLOCKED"
+    "managed_automatic_loading": "BLOCKED",
+    "recorded_header_followup": {
+      "toolbox_version": "3",
+      "skill_version": "2",
+      "client_resource_reads_without_and_with_preview_header": "PASS",
+      "client_tool_count": 0,
+      "client_resource_count": 6,
+      "cases": [
+        {"path": "toolbox", "agent_version": "13", "outer_inference_preview_header": false, "response_status": "completed", "marker_found": false, "functional_status": "FAIL", "input_tokens": 55, "output_tokens": 824},
+        {"path": "toolbox", "agent_version": "13", "outer_inference_preview_header": true, "response_status": "completed", "marker_found": false, "functional_status": "FAIL", "input_tokens": 55, "output_tokens": 661},
+        {"path": "native", "agent_version": "14", "outer_inference_preview_header": true, "response_status": "completed", "marker_found": false, "functional_status": "FAIL", "input_tokens": 38, "output_tokens": 1112}
+      ],
+      "loading_mechanism_and_failure_cause": "INDETERMINATE",
+      "downstream_header_forwarding": "NOT_OBSERVED",
+      "ordinary_support_contract": "REQUIRES_CLARIFICATION",
+      "published_version_7_preserved": true
+    }
   },
   "mcp_apps": {
     "unauthenticated_http_status": 401,
@@ -100,7 +116,16 @@
     "single_run_diagnostics_not_benchmark": true,
     "version_1_ui_probe": "NOT_SENT_INPUT_FOCUS_UNVERIFIED",
     "overlapping_warm_ui_retry": "EXCLUDED_FROM_MATCHED_COMPARISON",
-    "version_7_restored_readback": "VERIFIED"
+    "version_7_restored_readback": "VERIFIED",
+    "existing_governance_diagnostics_read": "HTTP_200",
+    "channel_project_post_status": 202,
+    "correlated_model_response_status": 400,
+    "model_matches_direct_diagnostics": true,
+    "model": "gpt-5-mini",
+    "model_version": "2025-08-07",
+    "prompt_body_and_filter_category": "NOT_AVAILABLE_IN_QUERIED_EVIDENCE",
+    "scoped_mcp_resource_signin_read_status": 200,
+    "scoped_mcp_resource_signin_events": 0
   },
   "ordinary_large_results": [
     {"bytes": 1024, "status": "completed", "markers_correct": true, "input_tokens": 1533, "followup_correct": true},
@@ -112,6 +137,24 @@
     "ordinary": "NOT_OBSERVED",
     "managed": "BLOCKED",
     "internal_mechanism_visibility": "LIMITED"
+  },
+  "compact_extraction_followup": {
+    "agent_version": "7",
+    "route": "direct MCP",
+    "bytes": 32768,
+    "max_output_tokens": 4096,
+    "initial_fields": ["BEGIN", "MIDDLE"],
+    "initial_answer_correct": true,
+    "input_tokens": 19748,
+    "output_tokens": 346,
+    "withheld_followup_field": "END",
+    "followup_answer_correct": true,
+    "followup_input_tokens": 19778,
+    "followup_output_tokens": 174,
+    "followup_refetched_payload": false,
+    "published_endpoint_and_local_state_unchanged": true,
+    "automatic_storage_mechanism": "INDETERMINATE",
+    "version_9_toolbox_worker_runs_excluded_from_direct_comparison": true
   },
   "provenance": "Sanitized observations transcribed from ignored local service responses and MCP protocol evidence; not vendor support guarantees."
 }

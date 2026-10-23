@@ -9,7 +9,7 @@ All measurements and outcome summaries below have a [sanitized machine-readable 
 | Question | Result | Evidence and boundary |
 | --- | --- | --- |
 | Progressive tool discovery/search | PASS | The same 26-tool catalog becomes `tool_search` and `call_tool` when search is enabled. Three fresh tasks invoked both meta-tools and returned the correct records. The full-catalog control also passed. |
-| Progressive skill discovery/loading | INDETERMINATE; delivery PASS | Toolbox exposed skill metadata, separate `SKILL.md` content, and a multi-file archive. Hidden body markers were absent from discovery metadata and present in subsequent resource reads. The ordinary Prompt Agent did not load/use the orchard skill through MCP; it also failed to use an explicitly attached native skill reference. Do not equate Toolbox delivery with automatic runtime support. |
+| Progressive skill discovery/loading | Delivery PASS; ordinary skill-use cases FAIL | Toolbox exposed metadata and separate content. On a fixed Toolbox agent version, both recorded outer-inference-header variants failed to return the required marker; a native-reference case with the preview header also failed. A client retrieved the skill with or without that header. The runtime cause and supported ordinary-agent integration contract remain unresolved; managed-harness comparison is BLOCKED. |
 | MCP Apps in Copilot/Teams | INDETERMINATE; proxy defect observed | Direct MCP serves UI metadata, structured results, and the HTML resource. Toolbox preserves the UI URI but rejects reading that URI. Both hosts show the published Foundry agent. After correcting its Activity URL, Copilot delivered an authorization card and then a service content-filter error. The deployed declarative control answered but reported its connector unavailable. Neither route has passed widget rendering and refresh. |
 | Automatic spill-to-disk | INDETERMINATE; managed comparison BLOCKED | Offload was not observed in the ordinary agent. A 256-KiB response consumed 150,158 input tokens and its follow-up consumed 150,185. A 1-MiB response failed with `context_length_exceeded`. No harness-created file or selective file read appeared in exposed output. Managed Copilot harness creation was explicitly refused for the subscription. |
 
@@ -38,6 +38,16 @@ The Toolbox exposed three single-file skills and one multi-file skill. `resource
 With the skills-only Toolbox attached as an MCP tool, the ordinary Prompt Agent received an empty `mcp_list_tools` item and said the requested inspection skill was unavailable. An unrelated greeting returned normally. A separate native `skills`-reference configuration was accepted and preserved in the agent definition, but the run did not produce the hidden phrase or a skill-load event.
 
 This establishes successful resource delivery, not automatic skill loading in every Prompt Agent harness. Supplementary content was retrieved as an archive; independent file selection by the managed Copilot harness could not be tested because that harness is gated.
+
+### Follow-up diagnosis
+
+The follow-up pinned Toolbox version 3 and orchard skill version 2. A protocol client successfully listed resources and read the orchard body both with and without `Foundry-Features: Skills=V1Preview`; discovery metadata did not contain the marker. Both variants returned zero tools and six resources.
+
+Two fresh inference requests used the same immutable ordinary agent version 13 and task, varying only that outer request header. Both completed but omitted the required marker, each reporting 55 input tokens. A native-reference request against version 14, with the preview header explicitly recorded, also completed without the marker and reported 38 input tokens. Separately supplying the body inline succeeded; that confirms the model can follow the content, not that skill loading works.
+
+These are **failed functional cases**, not passing tests merely because failure was predicted. They narrow the investigation beyond storage and this outer-header toggle. They do not prove that no internal resource read occurred, that the header is irrelevant at every boundary, or that ordinary agents universally lack skills. The remaining question for the Foundry owner is whether these ordinary-agent attachment paths implement skill consumption, and, if supported, which contract or runtime trace identifies the missing prerequisite or defect. No custom resource-to-tool adapter was introduced to disguise a native integration failure.
+
+The recorded-header probes and live definition readbacks are the comparison evidence. A separate check of the actual `agent_endpoint` verified version 7 at 100% with Responses, Activity, Entra, and BotServiceRbac unchanged.
 
 ## MCP Apps evidence
 
@@ -72,6 +82,8 @@ A bounded diagnostic updated the same governed control to version `1.0.1`, pinni
 
 Separate direct-API no-tool diagnostics completed in 35.69 seconds on version 7 and 2.70 seconds on the no-tools version 1. These single runs are not a benchmark or causal comparison. A temporary version-1 channel control was never submitted because input focus could not be verified; version 7 was restored and read back. A version-7 warm UI retry overlapped the pin change and is excluded from matched-version comparisons.
 
+Existing policy-managed Foundry diagnostic settings were readable without changing logging or permissions. The post-authentication channel window contains a `Projects_Wildcard_Post` with HTTP 202 followed by a `create_response` with HTTP 400 sharing the same correlation ID. The model/deployment is `gpt-5-mini`, version `2025-08-07`, also used by the successful direct requests. This locates a correlated model-service failure after the accepted project request; it does not identify the rejected prompt content or a separate channel filter. The queried logs expose metadata, not the full prompt or filter category; safety metrics did not provide usable category data for the window. A scoped Entra sign-in query also succeeded but returned no matching MCP-resource events. Absent events are not proof that no upstream authorization attempt occurred. The declarative control remains a separate M365 plugin-to-MCP path, not the Foundry bot path.
+
 ## Large-result observations
 
 The server returned raw deterministic text with hidden markers at three positions. It did not return a file, URL, or summary. The agent was not instructed to write anything and had no Code Interpreter.
@@ -79,11 +91,15 @@ The server returned raw deterministic text with hidden markers at three position
 | Payload | Observed outcome |
 | --- | --- |
 | 1 KiB | Completed with all three correct values after increasing the output allowance; same-response follow-up also returned the correct final marker. |
-| 32 KiB | The tool call completed; the model exhausted output allowances of 1,500 and 4,096 tokens. This is an output-budget confound, not proof of context overflow. |
+| 32 KiB | The original extraction request exhausted output allowances of 1,500 and 4,096 tokens. A revised compact extraction request on direct-MCP version 7 completed with 19,748 input and 346 output tokens; the withheld-END follow-up was correct with 19,778 input and 174 output tokens and no payload refetch. |
 | 256 KiB | All three markers and the follow-up were correct; 150,158 then 150,185 input tokens were reported. |
 | 1 MiB | HTTP 400 with `context_length_exceeded`. |
 
 These results are consistent with ordinary tool output entering context rather than being automatically offloaded in this configuration. They do not reveal all internal service behavior, establish a universal offload threshold, or answer how the inaccessible managed Copilot harness behaves.
+
+The revised task requests only the 24-character BEGIN and MIDDLE values, then asks for the previously unreported END value. Exact output shape, completion, and absence of a new `large_result` call are checked; finding marker substrings inside an oversized answer is no longer sufficient. The successful direct-route run retained the 4,096-token initial allowance. The fixture already has newline-delimited markers, so no delimiter defect or universal inability to parse them is established. This resolves the 32-KiB extraction failure for the revised task, not the hidden storage mechanism.
+
+Separate version-9 Toolbox exploration is excluded from the direct-route comparison. The revised runner was exercised against verified version 7, with publication and local deployment state unchanged. Original follow-ups requested a value already present in the preceding answer; they establish less about payload retention than the new withheld-value case.
 
 ## Evidence and continuation
 
@@ -100,7 +116,11 @@ Raw requests, service responses, protocol discovery, assessments, and publicatio
 - `control-first-server-log.json`, `control-discovery-wire-events.json`, `control-first-log-freshness.json`
 - `control-pinned-post-health-log-counts.json`, `control-pinned-health-freshness-probe.json`
 - `channel-control-restore7-readback.json`, `published-ui-api-greeting-assessment.json`, `channel-control-v1-api-assessment.json`
+- `skill-contract-*-request.json`, `skill-contract-*-assessment.json`, `skill-contract-summary.json`
+- `skill-contract-protocol-header-off.json`, `skill-contract-protocol-header-on.json`
+- `compact-spill-coordinator-assessment.json`, `budget-coordinator-tool-differences.json`
+- `diagnosis-foundry-channel-log-summary.json`, `diagnosis-channel-model-comparison.json`, `diagnosis-control-signin-read.json`
 
-To close the remaining questions: obtain managed-harness subscription enablement, resolve the control's unavailable connector without relaxing security, and submit a benign ordinary-agent widget probe through the corrected channel when safe input is available. Verify actual widget rendering and a refresh round-trip separately in each host. Browser authentication and control registration are no longer the outstanding prerequisites. [M365 continuation instructions](../m365/README.md) distinguish publication from rendering.
+To close the remaining questions: obtain the supported ordinary-agent skill-consumption contract or product-side trace for the failed cases; obtain managed-harness subscription enablement; resolve the control's unavailable connector without relaxing security; and submit a benign ordinary-agent widget probe through the corrected channel when safe input is available. Verify actual widget rendering and a refresh round-trip separately in each host. Browser authentication and control registration are no longer the outstanding prerequisites. Managed access blocks only managed cases, not independent ordinary-agent investigations. [M365 continuation instructions](../m365/README.md) distinguish publication from rendering.
 
 No customer email was sent by this lab, no existing Foundry resources were modified, and the test resources are retained for review.
