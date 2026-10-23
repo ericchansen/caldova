@@ -35,15 +35,15 @@ def request(method: str, url: str, tenant: str, resource: str, **kwargs) -> dict
     return response.json() if response.content else {}
 
 
-def load_state() -> dict:
-    return json.loads(STATE.read_text())
+def load_state(path: Path = STATE) -> dict:
+    return json.loads(path.read_text())
 
 
-def save_state(state: dict) -> None:
-    STATE.parent.mkdir(exist_ok=True)
-    temporary = STATE.with_suffix(".tmp")
+def save_state(state: dict, path: Path = STATE) -> None:
+    path.parent.mkdir(exist_ok=True)
+    temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(state, indent=2), encoding="utf-8")
-    temporary.replace(STATE)
+    temporary.replace(path)
 
 
 def bootstrap_identity() -> None:
@@ -112,8 +112,8 @@ def deployment_outputs() -> None:
     print(json.dumps(state["outputs"], indent=2))
 
 
-def authorize_foundry() -> None:
-    state = load_state()
+def authorize_foundry(state_path: Path = STATE) -> None:
+    state = load_state(state_path)
     tenant = state["tenant"]
     graph = "https://graph.microsoft.com"
     account = state["outputs"]["FOUNDRY_ACCOUNT_NAME"]
@@ -139,6 +139,11 @@ def authorize_foundry() -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("operation", choices=["identity", "outputs", "authorize"])
+    parser.add_argument("--state", type=Path, default=STATE, help="State file; authorize only")
     args = parser.parse_args()
-    {"identity": bootstrap_identity, "outputs": deployment_outputs,
-     "authorize": authorize_foundry}[args.operation]()
+    if args.operation != "authorize" and args.state != STATE:
+        parser.error("--state is supported only for authorize; identity and outputs use the main state")
+    if args.operation == "authorize":
+        authorize_foundry(args.state)
+    else:
+        {"identity": bootstrap_identity, "outputs": deployment_outputs}[args.operation]()

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import httpx
 
-from caldova.cloud import load_state, save_state, token
+from caldova.cloud import STATE, load_state, save_state, token
 from caldova.fixtures import expected_markers
 
 EVIDENCE = Path("evidence")
@@ -27,8 +27,9 @@ def record(name: str, data: dict) -> None:
 
 
 class Foundry:
-    def __init__(self):
-        self.state = load_state()
+    def __init__(self, state_path: Path = STATE):
+        self.state_path = state_path
+        self.state = load_state(state_path)
         self.endpoint = self.state["outputs"]["FOUNDRY_PROJECT_ENDPOINT"]
         self.client = httpx.Client(
             headers={"Authorization": f"Bearer {token('https://ai.azure.com', self.state['tenant'])}"},
@@ -38,7 +39,7 @@ class Foundry:
     def call(self, method: str, path: str, *, name: str, body: dict | None = None,
              headers: dict | None = None) -> dict:
         record(f"{name}-request", {
-            "method": method, "path": path, "body": body,
+            "project_endpoint": self.endpoint, "method": method, "path": path, "body": body,
             "foundry_features": (headers or {}).get("Foundry-Features"),
         })
         response = self.client.request(method, self.endpoint + path, json=body, headers=headers)
@@ -46,7 +47,7 @@ class Foundry:
             result = response.json()
         except ValueError:
             result = {"text": response.text}
-        record(name, {"status": response.status_code, "request": body, "response": result})
+        record(name, {"project_endpoint": self.endpoint, "status": response.status_code, "request": body, "response": result})
         if response.is_error:
             raise RuntimeError(f"{name}: HTTP {response.status_code}: {json.dumps(result)[:1800]}")
         return result
@@ -55,8 +56,8 @@ class Foundry:
         self.client.close()
 
 
-def create_agents() -> None:
-    api = Foundry()
+def create_agents(*, state_path: Path = STATE) -> None:
+    api = Foundry(state_path)
     definitions = {
         "caldova-prompt": {},
         "caldova-copilot": {"harness": {"type": "github_copilot_preview"}},
@@ -82,7 +83,7 @@ def create_agents() -> None:
                 if observed.get("harness") != definition.get("harness"):
                     raise RuntimeError(f"Harness mismatch: requested {extra}, observed {observed.get('harness')}")
                 api.state.setdefault("agents", {})[agent] = created
-                save_state(api.state)
+                save_state(api.state, api.state_path)
             except (RuntimeError, httpx.HTTPError) as error:
                 failures.append(f"{agent}: {error}")
                 print(failures[-1])
@@ -92,8 +93,8 @@ def create_agents() -> None:
         api.close()
 
 
-def connect_tools() -> None:
-    api = Foundry()
+def connect_tools(*, state_path: Path = STATE) -> None:
+    api = Foundry(state_path)
     try:
         tool = {
             "type": "mcp", "server_label": "caldova", "require_approval": "never",
@@ -108,7 +109,7 @@ def connect_tools() -> None:
                 body={"description": "Synthetic discovery fixture", "tools": tools},
             )
             api.state.setdefault("toolboxes", {})[toolbox_name] = created
-            save_state(api.state)
+            save_state(api.state, api.state_path)
         for agent, created in list(api.state.get("agents", {}).items()):
             definition = {**created["definition"], "tools": [tool]}
             updated = api.call(
@@ -116,13 +117,13 @@ def connect_tools() -> None:
                 name=f"connect-{agent}", body={"definition": definition},
             )
             api.state["agents"][agent] = updated
-            save_state(api.state)
+            save_state(api.state, api.state_path)
     finally:
         api.close()
 
 
-def run_spill(sizes: list[int] | None = None) -> None:
-    api = Foundry()
+def run_spill(sizes: list[int] | None = None, *, state_path: Path = STATE) -> None:
+    api = Foundry(state_path)
     try:
         for agent, definition in api.state.get("agents", {}).items():
             for size in sizes or (1024, 32768, 262144, 1048576):
@@ -148,6 +149,7 @@ def run_spill(sizes: list[int] | None = None) -> None:
                     expected = expected_markers(size, run_id)
                     calls = [item for item in result.get("output", []) if "call" in item.get("type", "")]
                     record(f"{name}-assessment", {
+                        "project_endpoint": api.endpoint,
                         "answer_correct": (
                             result.get("status") == "completed"
                             and text.strip().splitlines() == [expected["BEGIN"], expected["MIDDLE"]]
@@ -176,6 +178,7 @@ def run_spill(sizes: list[int] | None = None) -> None:
                             for item in followup.get("output", [])
                         )
                         record(f"{name}-followup-assessment", {
+                            "project_endpoint": api.endpoint,
                             "end_value_present": expected["END"] in json.dumps([
                                 item for item in followup.get("output", []) if item.get("type") == "message"
                             ]),
@@ -189,6 +192,7 @@ def run_spill(sizes: list[int] | None = None) -> None:
                         })
                 except (RuntimeError, httpx.HTTPError) as error:
                     record(f"{name}-assessment", {
+                        "project_endpoint": api.endpoint,
                         "status": "FAIL" if "context_length_exceeded" in str(error) else "BLOCKED",
                         "error": str(error),
                     })
@@ -198,8 +202,8 @@ def run_spill(sizes: list[int] | None = None) -> None:
         api.close()
 
 
-def create_skills() -> None:
-    api = Foundry()
+def create_skills(*, state_path: Path = STATE) -> None:
+    api = Foundry(state_path)
     try:
         for topic in ("orchard", "harbor", "observatory"):
             name = f"caldova-{topic}"
@@ -214,7 +218,7 @@ def create_skills() -> None:
                 }},
             )
             api.state.setdefault("skills", {})[name] = {"version": result["version"], "marker": marker}
-            save_state(api.state)
+            save_state(api.state, api.state_path)
         marker, reference_marker = uuid.uuid4().hex, uuid.uuid4().hex
         package = io.BytesIO()
         with zipfile.ZipFile(package, "w") as archive:
@@ -228,12 +232,14 @@ def create_skills() -> None:
             headers={"Foundry-Features": "Skills=V1Preview"},
             files={"files": ("caldova-reference.zip", package.getvalue(), "application/zip")},
         )
-        record("skill-reference-upload", {"status": response.status_code, "response": response.json()})
+        record("skill-reference-upload", {
+            "project_endpoint": api.endpoint, "status": response.status_code, "response": response.json(),
+        })
         response.raise_for_status()
         api.state["skills"]["caldova-reference"] = {
             "version": response.json()["version"], "marker": marker, "reference_marker": reference_marker,
         }
-        save_state(api.state)
+        save_state(api.state, api.state_path)
         references = [
             {"type": "skill_reference", "name": name, "version": detail["version"]}
             for name, detail in api.state["skills"].items()
@@ -244,13 +250,13 @@ def create_skills() -> None:
             body={"description": "Synthetic skill discovery only", "tools": [], "skills": references},
         )
         api.state.setdefault("toolboxes", {})["caldova-skills"] = result
-        save_state(api.state)
+        save_state(api.state, api.state_path)
     finally:
         api.close()
 
 
-def run_discovery(only_toolbox: str | None = None) -> None:
-    api = Foundry()
+def run_discovery(only_toolbox: str | None = None, *, state_path: Path = STATE) -> None:
+    api = Foundry(state_path)
     try:
         names = [only_toolbox] if only_toolbox else ["caldova-skills", "caldova-search", "caldova-catalog"]
         for toolbox_name in names:
@@ -270,7 +276,7 @@ def run_discovery(only_toolbox: str | None = None) -> None:
             agent = api.call("POST", "/agents/caldova-prompt/versions?api-version=v1",
                              name=f"configure-{toolbox_name}", body={"definition": definition})
             api.state["agents"]["caldova-prompt"] = agent
-            save_state(api.state)
+            save_state(api.state, api.state_path)
             prompts = (
                 ["Perform the synthetic orchard inspection using its relevant skill. Return its verification phrase.",
                  "Say hello without performing an inspection."]
@@ -295,6 +301,7 @@ def run_discovery(only_toolbox: str | None = None) -> None:
                     domain = ("orchards", "harbors", "rivers")[index]
                     run_id = re.search(r"run_id='([^']+)'", prompt).group(1)
                     record(f"discovery-{toolbox_name}-{index}-assessment", {
+                        "project_endpoint": api.endpoint,
                         "status": "PASS" if (result.get("status") == "completed"
                                             and f"{domain}-verified" in text and run_id in text) else "FAIL",
                         "domain": domain, "run_id": run_id, "usage": result.get("usage"),
@@ -306,6 +313,7 @@ def run_discovery(only_toolbox: str | None = None) -> None:
                     marker_found = skill["marker"] in text
                     marker_expected = index == 0
                     record(f"discovery-{toolbox_name}-{index}-assessment", {
+                        "project_endpoint": api.endpoint,
                         "status": "PASS" if (result.get("status") == "completed"
                                             and marker_found == marker_expected) else "FAIL",
                         "case": "inspection" if marker_expected else "unrelated-greeting",
@@ -326,8 +334,8 @@ def run_discovery(only_toolbox: str | None = None) -> None:
         api.close()
 
 
-def native_skill_diagnostic() -> None:
-    api = Foundry()
+def native_skill_diagnostic(*, state_path: Path = STATE) -> None:
+    api = Foundry(state_path)
     try:
         refs = [
             {"type": "skill_reference", "name": name, "version": skill["version"]}
@@ -349,6 +357,7 @@ def native_skill_diagnostic() -> None:
         messages = [item for item in result.get("output", []) if item.get("type") == "message"]
         marker_found = api.state["skills"]["caldova-orchard"]["marker"] in json.dumps(messages)
         assessment = {
+            "project_endpoint": api.endpoint,
             "marker_found": marker_found,
             "response_status": result.get("status"), "usage": result.get("usage"),
             "status": "PASS" if marker_found and result.get("status") == "completed" else "FAIL",
@@ -367,11 +376,12 @@ if __name__ == "__main__":
     ])
     parser.add_argument("--toolbox", help="Select a configured Toolbox for the discovery experiment")
     parser.add_argument("--sizes", type=int, nargs="+", help="Rerun selected raw-result sizes in bytes")
+    parser.add_argument("--state", type=Path, default=STATE, help="Lab state file for the target Foundry project")
     args = parser.parse_args()
     if args.operation == "discovery":
-        run_discovery(args.toolbox)
+        run_discovery(args.toolbox, state_path=args.state)
     elif args.operation == "spill":
-        run_spill(args.sizes)
+        run_spill(args.sizes, state_path=args.state)
     else:
         {"create-agents": create_agents, "connect-tools": connect_tools,
-         "skills": create_skills, "native-skills": native_skill_diagnostic}[args.operation]()
+         "skills": create_skills, "native-skills": native_skill_diagnostic}[args.operation](state_path=args.state)

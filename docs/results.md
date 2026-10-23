@@ -31,6 +31,16 @@ Agent creation with kind 'prompt' and harness type 'github_copilot_preview' is n
 
 The ordinary agent was created and completed an actual inference request. No substitute harness, other subscription, or custom persistence middleware was used to bypass the preview gate. Microsoft's [managed-harness authoring guidance](https://github.com/microsoft/azure-skills/blob/main/skills/microsoft-foundry/foundry-agent/create/create-managed-harness.md) establishes how to request the feature, not whether a particular subscription has it.
 
+### Supported-region control
+
+The [updated public region policy](https://github.com/Azure/azure-dev/blob/e58b139228ac63c3abd152d8053d7a71d2f21d1d/cli/azd/extensions/azure.ai.agents/internal/cmd/harness-agent-regions.json) excludes East US 2, contrary to the earlier list used for the lab. This was a real setup issue to investigate, not grounds to assume every failure was subscription gating.
+
+A separate Central US Foundry account, project, and `gpt-5-mini` deployment were provisioned with Bicep in the existing lab resource group. Preflight verified the current public list, exact `2025-08-07` model offer, GlobalStandard SKU, and 400 available capacity units. The guarded incremental what-if created only resources under the new account; existing resources were ignored. The original state file remained byte-identical, and the published East US 2 endpoint remained version 7 with its existing authentication.
+
+The ordinary Prompt Agent was created and completed an inline-skill control. Managed-harness creation, using the same requested `github_copilot_preview` and opt-in header, still returned HTTP 403 with the explicit subscription-not-enabled message. The regional correction alone therefore did not unblock the managed comparison. No alternate harness discriminator, EUAP region, other subscription, or tenant was used.
+
+Ordinary skill-resource delivery also passed in Central US. Native attachment completed without the required marker. The MCP-backed case initially asked for permission; a subsequent affirmative reply completed but still said it lacked access and omitted the marker. The downloaded/inline-body positive control returned the marker. These observations reproduce the functional skill-use failure outside the original region; they do not establish the hidden runtime cause.
+
 ## Skill evidence
 
 The Toolbox exposed three single-file skills and one multi-file skill. `resources/list` advertised their names and descriptions; separate `resources/read` requests retrieved their body markers. The multi-file package was also available as `skill://caldova-reference.zip`.
@@ -108,6 +118,10 @@ There is a concrete app-binding compatibility lead: the [OAuth/MCP guide](https:
 
 A subsequent safe-input check and a [documented bot-chat prefill deep link](https://learn.microsoft.com/microsoftteams/platform/concepts/build-and-test/deep-link-teams#deep-link-to-navigate-to-chat-messages) did not produce a verified composer value. Nothing was typed globally or sent. These are operational input failures, not additional model or MCP Apps outcomes.
 
+An offline command-package helper now prepares native Hello/table prompt commands while preserving the original package and all identities/authentication fields. Its distinct version-1.0.1 package passed the official manifest schema and preservation checks. The inspected ordinary registry entry was publisher type **Your users** and offered no **Update in store** action, so no upload or duplication was attempted. The prepared commands have not been tested in the host.
+
+A delayed retry of the unchanged declarative pinned control again returned tool unavailable, without a widget or sign-in card. The exact retry's console-log window contained no entries, including no freshness watermark; it is not treated as verified negative server correlation. The delayed UI outcome shows that elapsed time did not fix that particular attempt, not why it failed.
+
 ## Large-result observations
 
 The server returned raw deterministic text with hidden markers at three positions. It did not return a file, URL, or summary. The agent was not instructed to write anything and had no Code Interpreter.
@@ -147,6 +161,9 @@ Raw requests, service responses, protocol discovery, assessments, and publicatio
 - `bounded-mixed-summary.json`, `skill-search-entrypoint-discovery.json`
 - `ui-metadata-direct-foundry-assessment.json`
 - `diagnosis-sso-effective-app-contract.json`, `diagnosis-sso-alias-mcp-auth-control.json`
+- `harness-region-centralus-*.jsonl`, `regional-control-assessment.json`
+- `regional-inline-control-assessment.json`, `regional-skill-permission-followup-assessment.json`
+- `ordinary-command-package-validation.json`, `ordinary-command-package-outcome-*.json`
 
 To close the remaining questions: obtain the supported ordinary-agent skill-consumption contract or product-side trace for the failed cases; obtain managed-harness subscription enablement; resolve the control's unavailable connector without relaxing security; and submit a benign ordinary-agent widget probe through the corrected channel when safe input is available. Verify actual widget rendering and a refresh round-trip separately in each host. Browser authentication and control registration are no longer the outstanding prerequisites. Managed access blocks only managed cases, not independent ordinary-agent investigations. [M365 continuation instructions](../m365/README.md) distinguish publication from rendering.
 

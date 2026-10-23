@@ -7,6 +7,31 @@
     "http_status": 403,
     "outcome": "subscription_not_enabled"
   },
+  "supported_region_control": {
+    "original_region": "eastus2",
+    "original_region_excluded_by_updated_public_policy": true,
+    "control_region": "centralus",
+    "separate_foundry_account_project": true,
+    "same_lab_resource_group": true,
+    "model": "gpt-5-mini",
+    "model_version": "2025-08-07",
+    "sku": "GlobalStandard",
+    "capacity": 400,
+    "existing_resources_modified": false,
+    "ordinary_creation": "PASS",
+    "ordinary_inline_control": "PASS",
+    "managed_requested_harness": "github_copilot_preview",
+    "managed_opt_in": "GitHubCopilot=V1Preview",
+    "managed_creation_http_status": 403,
+    "managed_creation_outcome": "subscription_not_enabled",
+    "skill_resource_delivery": "PASS",
+    "native_skill_functional_status": "FAIL",
+    "mcp_skill_functional_status_after_permission_followup": "FAIL",
+    "primary_state_byte_identical": true,
+    "east_published_version": "7",
+    "east_authorization_preserved": true,
+    "regional_agent_published_to_m365": false
+  },
   "tool_discovery": {
     "catalog_tool_count": 26,
     "search_initial_tools": ["tool_search", "call_tool"],
@@ -151,6 +176,23 @@
       "log_freshness_verified_after_separate_health_probe": true,
       "upstream_discovery_auth_and_ingress": "UNKNOWN",
       "widget_render_and_refresh": "UNVERIFIED"
+    },
+    "delayed_pinned_control_retry": {
+      "configuration_changed": false,
+      "response": "CONNECTOR_OR_TOOL_UNAVAILABLE",
+      "widget_or_auth_card": "NOT_OBSERVED",
+      "console_log_window_has_freshness_watermark": false,
+      "negative_server_correlation": "NOT_ESTABLISHED"
+    },
+    "ordinary_prompt_command_package": {
+      "prepared_version": "1.0.1",
+      "original_package_preserved": true,
+      "identity_and_auth_fields_preserved": true,
+      "schema_validation": "PASS",
+      "ordinary_registry_publisher_type": "Your users",
+      "update_in_store_action": "NOT_AVAILABLE_IN_INSPECTED_UI",
+      "uploaded": false,
+      "runtime_commands_tested": false
     }
   },
   "channel_timing_diagnostics": {

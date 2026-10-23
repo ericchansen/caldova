@@ -15,6 +15,8 @@ A reproducible Foundry Prompt Agent lab for four questions:
 
 `caldova-prompt` omits the harness property. `caldova-copilot` requests `github_copilot_preview` with the required preview opt-in header. If the service refuses that harness, the experiment records the refusal; it never silently substitutes another runtime.
 
+The original account is in East US 2. A later public harness-region policy excluded that region, so the lab added a separate Central US Foundry account/project/model inside the same resource group. Its managed-harness creation was also refused. The existing MCP server and published East US 2 agent were not moved or repinned. [Regional controls](docs/results.md#supported-region-control) distinguish the region correction from the remaining subscription gate.
+
 Foundry tools use project-managed identity. Direct developer probes use delegated `Mcp.Access`; application callers require the lab's `Mcp.Invoke` app role. The health endpoint contains only fixture readiness information. Model deployment capacity is an allocation within existing quota, not provisioned throughput.
 
 The public repository contains no tenant configuration or raw service evidence. `.azure/` contains deployment state; `evidence/` contains append-preserved test results. Keep both private.
@@ -115,6 +117,30 @@ Requests are recorded before transport, including the explicit `Foundry-Features
 Discovery creates explicit agent versions but does not change a published endpoint's pinned version. Keep the publication pin on the direct-MCP, widget-capable version unless deliberately testing a different route. [M365 setup and continuation](m365/README.md) cover the publishing helper, authenticated positive-control manifest templates, and outstanding access requirements.
 
 ## Interpret evidence correctly
+
+### Supported-region control
+
+Do not change the existing deployment's location to test a different region. The optional Foundry-only control reuses `infra/foundry.bicep` and leaves the existing server, bot, and publication untouched:
+
+```powershell
+# Read current public harness regions, exact model offer, quota, and incremental what-if.
+.\.venv\Scripts\python.exe -m caldova.region --location centralus
+
+# Apply only after reviewing the scoped changes.
+.\.venv\Scripts\python.exe -m caldova.region --location centralus --deploy
+
+# Explicit secondary state prevents either project's versions from replacing the other's.
+.\.venv\Scripts\python.exe -m caldova.experiments create-agents --state .azure\harness-region.json
+.\.venv\Scripts\python.exe -m caldova.experiments skills --state .azure\harness-region.json
+.\.venv\Scripts\python.exe -m caldova.experiments native-skills --state .azure\harness-region.json
+.\.venv\Scripts\python.exe -m caldova.inspect_mcp caldova-skills --state .azure\harness-region.json
+```
+
+The provisioner rejects deletes and changes outside the new account's resource namespace. It uses existing quota, verifies deployment outputs/model readback, and writes only `.azure/harness-region.json`; repeated deployments preserve that project's experiment state. Model/account resources remain billable, and the extra allocation consumes quota. The regional project is not automatically published to M365 or authorized to invoke the shared MCP fixture. Its successful skill-resource reads do not require changing the fixture's authentication.
+
+Both experiment CLI and protocol probe support `--state`; default calls still use `.azure/lab.json`. Request/response evidence includes the project endpoint so identically named agents in different projects are not confused.
+
+### Evidence boundaries
 
 - `tools/list` changing from the full catalog to search meta-tools proves a smaller initial protocol surface. It does not guarantee lower total token usage.
 - Skill metadata and body/resource reads prove delivery. Only agent traces or observable loading can establish automatic progressive use by that agent.

@@ -9,47 +9,15 @@ param mcpImage string
 var suffix = uniqueString(resourceGroup().id)
 var accountName = 'caldova-${suffix}'
 
-resource account 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
-  name: accountName
-  location: location
-  kind: 'AIServices'
-  sku: { name: 'S0' }
-  identity: { type: 'SystemAssigned' }
-  properties: {
-    allowProjectManagement: true
-    customSubDomainName: accountName
-    disableLocalAuth: true
-    publicNetworkAccess: 'Enabled'
-  }
-}
-
-resource project 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
-  parent: account
-  name: 'capability-lab'
-  location: location
-  identity: { type: 'SystemAssigned' }
-  properties: {}
-}
-
-resource model 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = {
-  parent: account
-  name: modelName
-  sku: { name: 'GlobalStandard', capacity: modelCapacity }
-  properties: {
-    model: { format: 'OpenAI', name: modelName, version: modelVersion }
-  }
-  // The account rejects concurrent project and model creation.
-  dependsOn: [project]
-}
-
-var foundryUserRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '53ca6127-db72-4b80-b1b0-d745d6d5456d')
-resource developerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(account.id, principalId, foundryUserRole)
-  scope: account
-  properties: {
-    roleDefinitionId: foundryUserRole
+module foundry 'foundry.bicep' = {
+  name: 'foundry'
+  params: {
+    location: location
+    accountName: accountName
     principalId: principalId
-    principalType: 'User'
+    modelName: modelName
+    modelVersion: modelVersion
+    modelCapacity: modelCapacity
   }
 }
 
@@ -134,8 +102,8 @@ resource server 'Microsoft.App/containerApps@2025-01-01' = if (!empty(mcpImage))
   dependsOn: [pullRole]
 }
 
-output accountName string = account.name
-output projectEndpoint string = 'https://${account.name}.services.ai.azure.com/api/projects/${project.name}'
+output accountName string = foundry.outputs.accountName
+output projectEndpoint string = foundry.outputs.projectEndpoint
 output registryEndpoint string = registry.properties.loginServer
 output registryName string = registry.name
 output mcpEndpoint string = 'https://caldova-mcp.${environment.properties.defaultDomain}/mcp'
