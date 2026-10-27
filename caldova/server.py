@@ -107,7 +107,7 @@ def build_server(*, local: bool = False) -> FastMCP:
 
     @server.tool(
         annotations=readonly,
-        meta={"ui": {"resourceUri": "ui://caldova/table"}},
+        meta={"ui": {"resourceUri": "ui://caldova/table", "visibility": ["model", "app"]}},
     )
     def show_table(run_id: str) -> CallToolResult:
         """Display an interactive synthetic table. Refresh calls this tool and increments its display counter."""

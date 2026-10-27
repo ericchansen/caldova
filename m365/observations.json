@@ -1,53 +1,91 @@
 {
-  "tested_date": "2026-10-22",
-  "ordinary_agent": {
-    "name": "caldova-prompt",
-    "pinned_version": "7",
-    "route": "direct authenticated MCP",
-    "authorization": ["Entra", "BotServiceRbac"],
-    "model": "gpt-5-mini",
-    "model_version": "2025-08-07"
+  "current": {
+    "tested_date": "2026-10-26",
+    "ordinary_agent_version": "7",
+    "ordinary_route": "Direct authenticated MCP; no Toolbox",
+    "m365_copilot": {
+      "run_id": "foundry-published-copilot-20261026-b",
+      "result": "TEXT_ONLY",
+      "tool_called": true,
+      "widget_rendered": false
+    },
+    "teams_personal_bot": {
+      "run_id": "foundry-published-teams-20261026-b",
+      "result": "TEXT_ONLY",
+      "tool_called": true,
+      "widget_rendered": false
+    },
+    "direct_declarative_control": {
+      "run_id": "m365-anyapp-20261026-a",
+      "render_and_refresh": "PASS",
+      "counters": [
+        1,
+        2,
+        3
+      ],
+      "temporary_applicability": "Any Teams app",
+      "home_tenant_and_auth_retained": true,
+      "original_specific_app_binding_restored_and_reloaded": true,
+      "developer_mode_disabled_after_test": true
+    },
+    "hosted_sdk_publication": "NOT_TESTED",
+    "boundary": "Direct declarative-plugin rendering does not establish Foundry published-agent support."
   },
-  "browser_identity": "Intended lab account verified in account menus; no credentials entered",
-  "publication_visibility": {
-    "copilot_web": "PASS",
-    "teams_web_personal_app": "PASS",
-    "note": "Actual host visibility supersedes earlier uncertain catalog/API readback."
-  },
-  "declarative_control": {
-    "sso_registration": "CREATED",
-    "scope": "Home organization and one lab app",
-    "entra_configuration": "ADDITIVE_SETTINGS_VERIFIED",
-    "existing_roles_scopes_clients_retained": true,
-    "package_schema_validation": "PASS",
-    "developer_portal_import": "PASS",
-    "portal_validation_message": "No issues found",
-    "user_sideload_installation": "BLOCKED",
-    "host_error": "Uploading custom apps is not allowed",
-    "policy_changed": false,
-    "governed_admin_deployment": "PASS",
-    "publish_audience": "Exact test administrator only",
-    "install_audience": "Exact test administrator only",
-    "security_template": "Existing default retained",
-    "copilot_catalog_visibility": "PASS",
-    "native_catalog_launch": "PASS after one refresh; initial load error recorded",
-    "control_first_response": "Connector/tool unavailable in this session",
-    "pinned_diagnostic": {
-      "package_version": "1.0.1",
-      "schema_source": "Authenticated MCP tools/list show_table descriptor",
-      "identity_auth_assignment_retained": true,
-      "admin_version_readback": "PASS",
-      "host_version_marker": "control-pinned starter observed before submission",
-      "run_id": "control-pinned",
-      "submitted_utc": "2026-10-22T22:56:58Z",
-      "response": "Tool unavailable in this session; no widget or connector sign-in card",
-      "evidence_type": "Native accessibility snapshot; foreground-only screenshot capture declined",
-      "application_server_log_correlation": {
-        "window_start_utc": "2026-10-22T22:56:00Z",
-        "watermark_utc": "2026-10-22T22:59:31.7767775Z",
-        "observed_mcp_tool_resource_auth_rejection_metadata_or_run_id_events": 0,
-        "health_probe_refreshed_log_freshness": true,
-        "upstream_discovery_authentication_and_ingress_attempts": "UNKNOWN"
+  "historical_note": "Earlier diagnostics below are preserved, not current channel outcomes.",
+  "historical": {
+    "tested_date": "2026-10-22",
+    "ordinary_agent": {
+      "name": "caldova-prompt",
+      "pinned_version": "7",
+      "route": "direct authenticated MCP",
+      "authorization": [
+        "Entra",
+        "BotServiceRbac"
+      ],
+      "model": "gpt-5-mini",
+      "model_version": "2025-08-07"
+    },
+    "browser_identity": "Intended lab account verified in account menus; no credentials entered",
+    "publication_visibility": {
+      "copilot_web": "PASS",
+      "teams_web_personal_app": "PASS",
+      "note": "Actual host visibility supersedes earlier uncertain catalog/API readback."
+    },
+    "declarative_control": {
+      "sso_registration": "CREATED",
+      "scope": "Home organization and one lab app",
+      "entra_configuration": "ADDITIVE_SETTINGS_VERIFIED",
+      "existing_roles_scopes_clients_retained": true,
+      "package_schema_validation": "PASS",
+      "developer_portal_import": "PASS",
+      "portal_validation_message": "No issues found",
+      "user_sideload_installation": "BLOCKED",
+      "host_error": "Uploading custom apps is not allowed",
+      "policy_changed": false,
+      "governed_admin_deployment": "PASS",
+      "publish_audience": "Exact test administrator only",
+      "install_audience": "Exact test administrator only",
+      "security_template": "Existing default retained",
+      "copilot_catalog_visibility": "PASS",
+      "native_catalog_launch": "PASS after one refresh; initial load error recorded",
+      "control_first_response": "Connector/tool unavailable in this session",
+      "pinned_diagnostic": {
+        "package_version": "1.0.1",
+        "schema_source": "Authenticated MCP tools/list show_table descriptor",
+        "identity_auth_assignment_retained": true,
+        "admin_version_readback": "PASS",
+        "host_version_marker": "control-pinned starter observed before submission",
+        "run_id": "control-pinned",
+        "submitted_utc": "2026-10-22T22:56:58Z",
+        "response": "Tool unavailable in this session; no widget or connector sign-in card",
+        "evidence_type": "Native accessibility snapshot; foreground-only screenshot capture declined",
+        "application_server_log_correlation": {
+          "window_start_utc": "2026-10-22T22:56:00Z",
+          "watermark_utc": "2026-10-22T22:59:31.7767775Z",
+          "observed_mcp_tool_resource_auth_rejection_metadata_or_run_id_events": 0,
+          "health_probe_refreshed_log_freshness": true,
+          "upstream_discovery_authentication_and_ingress_attempts": "UNKNOWN"
+        }
       }
     },
     "widget_rendering": "NOT_OBSERVED"
@@ -97,8 +135,18 @@
     "interpretation": "Initial published probes did not visibly reach the MCP server. Root cause is unverified."
   },
   "diagnostic_controls": {
-    "direct_api_v7": {"status": "PASS", "elapsed_seconds": 35.69, "input_tokens": 828, "output_tokens": 113},
-    "direct_api_v1_no_tools": {"status": "PASS", "elapsed_seconds": 2.70, "input_tokens": 38, "output_tokens": 112},
+    "direct_api_v7": {
+      "status": "PASS",
+      "elapsed_seconds": 35.69,
+      "input_tokens": 828,
+      "output_tokens": 113
+    },
+    "direct_api_v1_no_tools": {
+      "status": "PASS",
+      "elapsed_seconds": 2.7,
+      "input_tokens": 38,
+      "output_tokens": 112
+    },
     "warm_v7_ui_retry": "EXCLUDED: endpoint selector changed 47 seconds after submission; no actual response version evidence",
     "v1_no_tools_ui": "NOT_SENT: composer focus verification failed; no unverified keyboard input",
     "interpretation": "Single-run API controls show latency as a confound, not the cause of channel failure."

@@ -1,94 +1,340 @@
 {
-  "model": {"name": "gpt-5-mini", "version": "2025-08-07", "sku": "GlobalStandard"},
-  "ordinary_agent": {"kind": "prompt", "harness_property": "omitted"},
-  "managed_agent": {
-    "requested_harness": "github_copilot_preview",
-    "preview_header": "GitHubCopilot=V1Preview",
-    "http_status": 403,
-    "outcome": "subscription_not_enabled"
-  },
-  "supported_region_control": {
-    "original_region": "eastus2",
-    "original_region_excluded_by_updated_public_policy": true,
-    "control_region": "centralus",
-    "separate_foundry_account_project": true,
-    "same_lab_resource_group": true,
-    "model": "gpt-5-mini",
-    "model_version": "2025-08-07",
-    "sku": "GlobalStandard",
-    "capacity": 400,
-    "existing_resources_modified": false,
-    "ordinary_creation": "PASS",
-    "ordinary_inline_control": "PASS",
-    "managed_requested_harness": "github_copilot_preview",
-    "managed_opt_in": "GitHubCopilot=V1Preview",
-    "managed_creation_http_status": 403,
-    "managed_creation_outcome": "subscription_not_enabled",
-    "skill_resource_delivery": "PASS",
-    "native_skill_functional_status": "FAIL",
-    "mcp_skill_functional_status_after_permission_followup": "FAIL",
-    "primary_state_byte_identical": true,
-    "east_published_version": "7",
-    "east_authorization_preserved": true,
-    "regional_agent_published_to_m365": false
-  },
-  "tool_discovery": {
-    "catalog_tool_count": 26,
-    "search_initial_tools": ["tool_search", "call_tool"],
-    "search_agent_cases": [
-      {"domain": "orchards", "status": "PASS", "input_tokens": 2065, "calls": ["tool_search", "call_tool"]},
-      {"domain": "harbors", "status": "PASS", "input_tokens": 2067, "calls": ["tool_search", "call_tool"]},
-      {"domain": "rivers", "status": "PASS", "input_tokens": 2051, "calls": ["tool_search", "call_tool"]}
-    ],
-    "catalog_agent_cases": [
-      {"domain": "orchards", "status": "PASS", "input_tokens": 1084},
-      {"domain": "harbors", "status": "PASS", "input_tokens": 1082},
-      {"domain": "rivers", "status": "PASS", "input_tokens": 1090}
-    ]
-  },
-  "skills": {
-    "single_file_count": 3,
-    "archive_count": 1,
-    "metadata_excludes_body_markers": true,
-    "resource_reads_match_body_markers": true,
-    "ordinary_mcp_agent_used_skill": false,
-    "native_skill_diagnostic": {"marker_found": false, "response_status": "completed", "input_tokens": 34},
-    "managed_automatic_loading": "BLOCKED",
-    "recorded_header_followup": {
-      "toolbox_version": "3",
-      "skill_version": "2",
-      "client_resource_reads_without_and_with_preview_header": "PASS",
-      "client_tool_count": 0,
-      "client_resource_count": 6,
-      "cases": [
-        {"path": "toolbox", "agent_version": "13", "outer_inference_preview_header": false, "response_status": "completed", "marker_found": false, "functional_status": "FAIL", "input_tokens": 55, "output_tokens": 824},
-        {"path": "toolbox", "agent_version": "13", "outer_inference_preview_header": true, "response_status": "completed", "marker_found": false, "functional_status": "FAIL", "input_tokens": 55, "output_tokens": 661},
-        {"path": "native", "agent_version": "14", "outer_inference_preview_header": true, "response_status": "completed", "marker_found": false, "functional_status": "FAIL", "input_tokens": 38, "output_tokens": 1112}
-      ],
-      "loading_mechanism_and_failure_cause": "INDETERMINATE",
-      "downstream_header_forwarding": "NOT_OBSERVED",
-      "ordinary_support_contract": "REQUIRES_CLARIFICATION",
-      "published_version_7_preserved": true
+  "current": {
+    "as_of": "2026-10-27",
+    "scope": "Authenticated synthetic fixture; observed configurations, not universal support guarantees",
+    "tools": {
+      "status": "PASS",
+      "catalog_count": 26,
+      "search_meta_tools": 2,
+      "total_token_savings_demonstrated": false
     },
-    "mixed_toolbox_control": {
-      "toolbox_version": "4",
-      "skill_version": "2",
-      "allowed_tool": "caldova___lookup_orchards",
-      "cases": [
-        {"configuration": "downloaded body preloaded into instructions", "agent_version": "18", "response_status": "completed", "tool_control_passed": true, "skill_marker_found": true},
-        {"configuration": "toolbox without preload", "agent_version": "19", "response_status": "completed", "tool_control_passed": true, "skill_marker_found": false},
-        {"configuration": "toolbox plus native skill reference", "agent_version": "20", "response_status": "completed", "tool_control_passed": true, "skill_marker_found": false}
-      ],
-      "inline_control_is_progressive_loading": false,
-      "published_endpoint_unchanged": true,
-      "unrestricted_tool_attempts_excluded": true
+    "skills": {
+      "resource_delivery": "PASS",
+      "ordinary_automatic_use_cases": "FAIL",
+      "explicit_body_preload": "PASS",
+      "managed_consumption": "BLOCKED"
     },
-    "skills_only_search_entrypoint": {
-      "toolbox_version": "5",
-      "configured_search_name": "skill_search",
-      "callable_tool_count": 0,
-      "resource_count": 2,
-      "agent_inference_run": false
+    "mcp_apps": {
+      "reference_host": {
+        "render_and_refresh": "PASS",
+        "counters": [
+          1,
+          8
+        ]
+      },
+      "m365_direct_declarative": {
+        "render_and_refresh": "PASS",
+        "counters": [
+          1,
+          2,
+          3
+        ],
+        "temporary_auth_applicability": "Any Teams app",
+        "home_tenant_and_auth_retained": true,
+        "original_specific_app_restriction_restored": true
+      },
+      "ordinary_direct_mcp": {
+        "agent_version": "7",
+        "playground": "TEXT_ONLY",
+        "m365_copilot": "TEXT_ONLY",
+        "teams_personal_bot": "TEXT_ONLY",
+        "tool_calls_verified": true,
+        "toolbox_used": false
+      },
+      "ordinary_toolbox": {
+        "agent_version": "9",
+        "tool_call": "PASS",
+        "resource_read": "FAIL",
+        "error": "No resource provider handles URI 'ui://caldova/table'."
+      },
+      "hosted_custom": {
+        "render_and_refresh": "PASS",
+        "per_tool_wrapper": true,
+        "html_bypasses_toolbox": true,
+        "warm_counters": [
+          1,
+          2
+        ]
+      },
+      "hosted_native_direct": {
+        "render_and_refresh": "PASS",
+        "sdk": "1.0.11",
+        "cli": "1.0.79",
+        "experimental_opt_in": true,
+        "catalog_count": 26,
+        "per_tool_wrapper": false,
+        "live_ui_bundles": 1,
+        "configured_servers": 1,
+        "run_id": "native-ui-direct-20261027-a",
+        "counters": [
+          1,
+          2
+        ],
+        "refresh_click_utc": "2026-10-27T01:50:03.6619837Z",
+        "second_result_utc": "2026-10-27T01:50:11.262444Z",
+        "ordinary_lookup": "orchards-verified",
+        "render_evidence": "Native accessibility tree of actual nested MCP App and table",
+        "screenshot_captured": false,
+        "model_selected_ui_and_ordinary_tools_in_separate_probe": true
+      },
+      "hosted_native_toolbox": {
+        "run_id": "native-ui-toolbox-20261027-a",
+        "tool_call": "PASS",
+        "counter": 1,
+        "widget_rendered": false,
+        "resource_read": "FAIL",
+        "hosted_http_status": 500,
+        "runtime_log_utc": "2026-10-27T01:47:21.197633863Z",
+        "runtime_error": "Request session.mcp.apps.readResource failed: No resource provider handles URI 'ui://caldova/table'.",
+        "direct_source_fallback": false,
+        "error_visible_in_browser": false
+      },
+      "hosted_m365_teams_publication": "NOT_TESTED",
+      "customer_application": "NOT_TESTED"
+    },
+    "offload": {
+      "ordinary_prompt": {
+        "automatic_file_observed": false,
+        "one_mib_result": "context_length_exceeded"
+      },
+      "managed_copilot_prompt": {
+        "canonical_type": "microsoft_copilot_preview",
+        "creation_status": 403,
+        "outcome": "subscription_not_enabled",
+        "inference_run": false
+      },
+      "hosted_copilot_sdk": {
+        "large_output_override": false,
+        "model_file_writes_allowed": false,
+        "source_server_creates_payload_file": false,
+        "cases": [
+          {
+            "bytes": 1024,
+            "handling": "INLINE",
+            "matching_output_file": false
+          },
+          {
+            "bytes": 32768,
+            "handling": "AUTOMATIC_FILE",
+            "exact_size_and_sha256_verified": true,
+            "initial_notice_bytes": 813,
+            "initial_mcp_calls": 1,
+            "followup_mcp_calls": 0,
+            "marker_answers_correct": true
+          },
+          {
+            "bytes": 262144,
+            "handling": "AUTOMATIC_FILE",
+            "exact_size_and_sha256_verified": true,
+            "initial_notice_bytes": 814,
+            "initial_mcp_calls": 2,
+            "followup_mcp_calls": 0,
+            "marker_answers_correct": true
+          }
+        ],
+        "qualification": "Model attempted full-file reads; 256-KiB initial turn refetched once. Follow-up used existing file. Exact threshold and eviction durability not measured."
+      }
+    }
+  },
+  "historical_note": "Entries below preserve earlier experiments. Their channel/control conclusions are superseded by current where later tests exist.",
+  "historical": {
+    "model": {
+      "name": "gpt-5-mini",
+      "version": "2025-08-07",
+      "sku": "GlobalStandard"
+    },
+    "ordinary_agent": {
+      "kind": "prompt",
+      "harness_property": "omitted"
+    },
+    "managed_agent": {
+      "requested_harness": "github_copilot_preview",
+      "preview_header": "GitHubCopilot=V1Preview",
+      "http_status": 403,
+      "outcome": "subscription_not_enabled"
+    },
+    "canonical_managed_harness_probe": {
+      "region": "centralus",
+      "requested_harness": "microsoft_copilot_preview",
+      "preview_header": "MicrosoftCopilot=V1Preview",
+      "http_status": 403,
+      "outcome": "subscription_not_enabled",
+      "agent_created": false,
+      "inference_executed": false,
+      "automatic_spill_measured": false,
+      "canonical_pair_tested_in_eastus2": false
+    },
+    "supported_region_control": {
+      "original_region": "eastus2",
+      "original_region_excluded_by_updated_public_policy": true,
+      "control_region": "centralus",
+      "separate_foundry_account_project": true,
+      "same_lab_resource_group": true,
+      "model": "gpt-5-mini",
+      "model_version": "2025-08-07",
+      "sku": "GlobalStandard",
+      "capacity": 400,
+      "existing_resources_modified": false,
+      "ordinary_creation": "PASS",
+      "ordinary_inline_control": "PASS",
+      "managed_requested_harness": "github_copilot_preview",
+      "managed_opt_in": "GitHubCopilot=V1Preview",
+      "managed_creation_http_status": 403,
+      "managed_creation_outcome": "subscription_not_enabled",
+      "skill_resource_delivery": "PASS",
+      "native_skill_functional_status": "FAIL",
+      "mcp_skill_functional_status_after_permission_followup": "FAIL",
+      "primary_state_byte_identical": true,
+      "east_published_version": "7",
+      "east_authorization_preserved": true,
+      "regional_agent_published_to_m365": false
+    },
+    "tool_discovery": {
+      "catalog_tool_count": 26,
+      "search_initial_tools": [
+        "tool_search",
+        "call_tool"
+      ],
+      "search_agent_cases": [
+        {
+          "domain": "orchards",
+          "status": "PASS",
+          "input_tokens": 2065,
+          "calls": [
+            "tool_search",
+            "call_tool"
+          ]
+        },
+        {
+          "domain": "harbors",
+          "status": "PASS",
+          "input_tokens": 2067,
+          "calls": [
+            "tool_search",
+            "call_tool"
+          ]
+        },
+        {
+          "domain": "rivers",
+          "status": "PASS",
+          "input_tokens": 2051,
+          "calls": [
+            "tool_search",
+            "call_tool"
+          ]
+        }
+      ],
+      "catalog_agent_cases": [
+        {
+          "domain": "orchards",
+          "status": "PASS",
+          "input_tokens": 1084
+        },
+        {
+          "domain": "harbors",
+          "status": "PASS",
+          "input_tokens": 1082
+        },
+        {
+          "domain": "rivers",
+          "status": "PASS",
+          "input_tokens": 1090
+        }
+      ]
+    },
+    "skills": {
+      "single_file_count": 3,
+      "archive_count": 1,
+      "metadata_excludes_body_markers": true,
+      "resource_reads_match_body_markers": true,
+      "ordinary_mcp_agent_used_skill": false,
+      "native_skill_diagnostic": {
+        "marker_found": false,
+        "response_status": "completed",
+        "input_tokens": 34
+      },
+      "managed_automatic_loading": "BLOCKED",
+      "recorded_header_followup": {
+        "toolbox_version": "3",
+        "skill_version": "2",
+        "client_resource_reads_without_and_with_preview_header": "PASS",
+        "client_tool_count": 0,
+        "client_resource_count": 6,
+        "cases": [
+          {
+            "path": "toolbox",
+            "agent_version": "13",
+            "outer_inference_preview_header": false,
+            "response_status": "completed",
+            "marker_found": false,
+            "functional_status": "FAIL",
+            "input_tokens": 55,
+            "output_tokens": 824
+          },
+          {
+            "path": "toolbox",
+            "agent_version": "13",
+            "outer_inference_preview_header": true,
+            "response_status": "completed",
+            "marker_found": false,
+            "functional_status": "FAIL",
+            "input_tokens": 55,
+            "output_tokens": 661
+          },
+          {
+            "path": "native",
+            "agent_version": "14",
+            "outer_inference_preview_header": true,
+            "response_status": "completed",
+            "marker_found": false,
+            "functional_status": "FAIL",
+            "input_tokens": 38,
+            "output_tokens": 1112
+          }
+        ],
+        "loading_mechanism_and_failure_cause": "INDETERMINATE",
+        "downstream_header_forwarding": "NOT_OBSERVED",
+        "ordinary_support_contract": "REQUIRES_CLARIFICATION",
+        "published_version_7_preserved": true
+      },
+      "mixed_toolbox_control": {
+        "toolbox_version": "4",
+        "skill_version": "2",
+        "allowed_tool": "caldova___lookup_orchards",
+        "cases": [
+          {
+            "configuration": "downloaded body preloaded into instructions",
+            "agent_version": "18",
+            "response_status": "completed",
+            "tool_control_passed": true,
+            "skill_marker_found": true
+          },
+          {
+            "configuration": "toolbox without preload",
+            "agent_version": "19",
+            "response_status": "completed",
+            "tool_control_passed": true,
+            "skill_marker_found": false
+          },
+          {
+            "configuration": "toolbox plus native skill reference",
+            "agent_version": "20",
+            "response_status": "completed",
+            "tool_control_passed": true,
+            "skill_marker_found": false
+          }
+        ],
+        "inline_control_is_progressive_loading": false,
+        "published_endpoint_unchanged": true,
+        "unrestricted_tool_attempts_excluded": true
+      },
+      "skills_only_search_entrypoint": {
+        "toolbox_version": "5",
+        "configured_search_name": "skill_search",
+        "callable_tool_count": 0,
+        "resource_count": 2,
+        "agent_inference_run": false
+      }
     }
   },
   "mcp_apps": {
@@ -106,14 +352,27 @@
       "response_status": "completed",
       "ui_resource_uri_exposed": false,
       "structured_content_field_exposed": false,
-      "message_content_types": ["output_text"],
+      "message_content_types": [
+        "output_text"
+      ],
       "host_rendering": "NOT_TESTED",
       "out_of_band_metadata": "UNKNOWN"
+    },
+    "foundry_playground_probe": {
+      "official_portal_opened": true,
+      "native_page_controls_available": false,
+      "project_and_version_selection_verified": false,
+      "prompt_submitted": false,
+      "rendering": "UNTESTED",
+      "different_account_requirement": "NOT_ESTABLISHED"
     },
     "personal_publication": "API_ACCEPTED",
     "published_agent_version": "7",
     "endpoint_pin_and_auth_readback": "VERIFIED",
-    "store_availability": {"copilot": "VERIFIED", "teams_personal_chat": "VERIFIED"},
+    "store_availability": {
+      "copilot": "VERIFIED",
+      "teams_personal_chat": "VERIFIED"
+    },
     "activity_route": {
       "initial_defect": "missing api-version query",
       "required_api_version": "2025-05-15-preview",
@@ -122,11 +381,18 @@
     },
     "copilot_ui": {
       "cached_account_authorization_callback": "RETURNED_TO_CONVERSATION",
-      "post_fix_greeting": {"type": "invalid_request_error", "code": "content_filter", "target": "prompt"},
+      "post_fix_greeting": {
+        "type": "invalid_request_error",
+        "code": "content_filter",
+        "target": "prompt"
+      },
       "post_fix_widget_probe": "NOT_SENT_INPUT_FOCUS_UNVERIFIED",
       "widget_render_and_refresh": "UNVERIFIED"
     },
-    "teams_ui": {"pre_fix_greeting": "NO_REPLY", "post_fix_widget_render_and_refresh": "UNVERIFIED"},
+    "teams_ui": {
+      "pre_fix_greeting": "NO_REPLY",
+      "post_fix_widget_render_and_refresh": "UNVERIFIED"
+    },
     "declarative_control_registration": "SSO_AND_PORTAL_IMPORT_VERIFIED",
     "declarative_control_deployment": {
       "personal_sideload": "DENIED_BY_CUSTOM_APP_POLICY",
@@ -153,9 +419,21 @@
       "operator_token_audience_matches_existing_verifier": true,
       "m365_token_store_exchange_proven": false,
       "noninteractive_signin_query_status": 429,
-      "oauth_guide_specific_app_binding_warning": "APPLICABILITY_TO_ENTRA_SSO_UNTESTED",
-      "app_binding_change_authorized": false,
-      "app_binding_changed": false
+      "oauth_guide_specific_app_binding_warning": "IMMEDIATE_COMPARISON_SHOWED_NO_IMPROVEMENT",
+      "app_binding_change_authorized": true,
+      "app_binding_changed": false,
+      "temporary_anyapp_comparison": {
+        "request_count": 1,
+        "sent_utc": "2026-10-23T19:54:02.8506119Z",
+        "home_tenant_and_auth_scope_preserved": true,
+        "response": "CONNECTOR_OR_TOOL_UNAVAILABLE",
+        "widget_or_auth_card": "NOT_OBSERVED",
+        "server_mcp_events_observed": 0,
+        "server_log_watermark_utc": "2026-10-23T19:55:01.6069955Z",
+        "original_binding_restored_and_reloaded": true,
+        "all_saved_field_values_match_baseline": true,
+        "host_cache_or_propagation": "UNKNOWN"
+      }
     },
     "declarative_control_pinned_probe": {
       "package_version": "1.0.1",
@@ -193,10 +471,85 @@
       "update_in_store_action": "NOT_AVAILABLE_IN_INSPECTED_UI",
       "uploaded": false,
       "runtime_commands_tested": false
+    },
+    "governed_same_backend_frontend": {
+      "name": "Caldova Prompt Commands",
+      "package_version": "1.0.0",
+      "new_catalog_id": true,
+      "same_bot_entra_and_custom_engine_identity": true,
+      "audience": "SINGLE_TEST_USER",
+      "original_app_unchanged": true,
+      "copilot_greeting_actual_text": "Introduce the existing lab agent.",
+      "copilot_greeting_ui": "EMPTY_RESPONSE",
+      "correlated_model_http_status": 200,
+      "input_tokens": 819,
+      "completion_tokens": 928,
+      "model_duration_ms": 40258,
+      "widget_probe": {
+        "run_id": "q2-widget-20261026-a",
+        "duplicate_prompt_visible": true,
+        "duplicate_submission_is_automation_confound": true,
+        "independent_trials": false,
+        "server_tool_calls_observed": 1,
+        "server_call_utc": "2026-10-26T16:30:26.951338Z",
+        "correlated_model_http_status": 200,
+        "input_tokens": 1582,
+        "completion_tokens": 171,
+        "ui_result": "EMPTY_RESPONSE",
+        "interactive_widget_observed": false,
+        "refresh_control_observed": false,
+        "mcp_apps_rendering_test": "FAIL_IN_TESTED_CONFIGURATION"
+      }
+    },
+    "teams_personal_chat_live_probe": {
+      "app_heading": "Caldova Prompt Lab",
+      "same_original_bot": true,
+      "published_version": "7",
+      "greeting_rendered": "Hello!",
+      "widget_prompt": "Show the fixture table using the show_table tool.",
+      "show_table_server_call_verified": true,
+      "server_call_utc": "2026-10-26T16:28:37.978640Z",
+      "counter": 1,
+      "run_id_reused_from_prior_greeting_by_model": true,
+      "result": "TEXT_ROWS_ONLY",
+      "interactive_widget_observed": false,
+      "refresh_control_observed": false,
+      "mcp_apps_rendering_test": "FAIL_IN_TESTED_CONFIGURATION",
+      "universal_support_verdict": "NOT_ESTABLISHED"
+    },
+    "developer_mode_probe": {
+      "enabled_acknowledged": true,
+      "new_conversation_before_widget": true,
+      "mode_scope_verified": false,
+      "actions_card_observed": false,
+      "disabled_acknowledged": true,
+      "original_starters_restored": true,
+      "absence_of_card": "NONDIAGNOSTIC"
+    },
+    "explicit_visibility_probe": {
+      "package_version": "1.0.4",
+      "visibility": [
+        "model",
+        "app"
+      ],
+      "live_authenticated_descriptor_verified": true,
+      "host_updated_starter_verified": true,
+      "run_id": "control-visibility",
+      "sent_utc": "2026-10-23T20:15:19.9421198Z",
+      "response": "TOOL_UNAVAILABLE_PROSE",
+      "claimed_not_found_error_is_verified_http_status": false,
+      "server_log_watermark_utc": "2026-10-23T20:15:28.9828126Z",
+      "server_mcp_events_observed": 0,
+      "watermark_after_final_ui_response": false,
+      "widget_render_and_refresh": "UNVERIFIED",
+      "fixture_auth_and_user_scope_preserved": true
     }
   },
   "channel_timing_diagnostics": {
-    "direct_api_seconds": {"version_7": 35.69, "no_tools_version_1": 2.70},
+    "direct_api_seconds": {
+      "version_7": 35.69,
+      "no_tools_version_1": 2.7
+    },
     "single_run_diagnostics_not_benchmark": true,
     "version_1_ui_probe": "NOT_SENT_INPUT_FOCUS_UNVERIFIED",
     "overlapping_warm_ui_retry": "EXCLUDED_FROM_MATCHED_COMPARISON",
@@ -212,10 +565,33 @@
     "scoped_mcp_resource_signin_events": 0
   },
   "ordinary_large_results": [
-    {"bytes": 1024, "status": "completed", "markers_correct": true, "input_tokens": 1533, "followup_correct": true},
-    {"bytes": 32768, "status": "incomplete", "reason": "max_output_tokens", "input_tokens": 19575, "max_output_tokens": 4096},
-    {"bytes": 262144, "status": "completed", "markers_correct": true, "input_tokens": 150158, "followup_input_tokens": 150185, "followup_correct": true},
-    {"bytes": 1048576, "http_status": 400, "error_code": "context_length_exceeded"}
+    {
+      "bytes": 1024,
+      "status": "completed",
+      "markers_correct": true,
+      "input_tokens": 1533,
+      "followup_correct": true
+    },
+    {
+      "bytes": 32768,
+      "status": "incomplete",
+      "reason": "max_output_tokens",
+      "input_tokens": 19575,
+      "max_output_tokens": 4096
+    },
+    {
+      "bytes": 262144,
+      "status": "completed",
+      "markers_correct": true,
+      "input_tokens": 150158,
+      "followup_input_tokens": 150185,
+      "followup_correct": true
+    },
+    {
+      "bytes": 1048576,
+      "http_status": 400,
+      "error_code": "context_length_exceeded"
+    }
   ],
   "automatic_offload": {
     "ordinary": "NOT_OBSERVED",
@@ -227,7 +603,10 @@
     "route": "direct MCP",
     "bytes": 32768,
     "max_output_tokens": 4096,
-    "initial_fields": ["BEGIN", "MIDDLE"],
+    "initial_fields": [
+      "BEGIN",
+      "MIDDLE"
+    ],
     "initial_answer_correct": true,
     "input_tokens": 19748,
     "output_tokens": 346,

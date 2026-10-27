@@ -1,81 +1,55 @@
 # Microsoft 365 and Teams channel tests
 
-This directory contains the authenticated declarative-agent positive control. It connects directly to the same MCP fixture as the Foundry agent. The control is not a replacement for testing the published Foundry agent.
+This directory contains an authenticated **direct declarative-agent MCP plugin control**. It uses the same source fixture as the Foundry agent but is a different orchestration path.
 
-## Observed prerequisites
+## Current result
 
-The lab Bot Service and Teams channel were deployed from [`infra/bot.bicep`](../infra/bot.bicep). Initial browser access was blocked. A later authorized session verified the correct lab account in both Copilot and the Teams Developer Portal. The Developer Portal UI allowed a home-tenant, single-app Entra SSO registration even though the earlier Azure CLI-token API read returned HTTP 403. That API result was not a tenant-wide access restriction.
+| Route | October 26 controlled result |
+| --- | --- |
+| Source MCP -> M365 declarative control | Rendered widget; real Refresh clicks advanced counters 1/2/3 during an authorized temporary Any Teams app authentication-binding comparison. |
+| Source MCP -> Foundry prompt v7 -> M365 Copilot | Actual tool call, text only; no widget or Refresh. |
+| Source MCP -> same Foundry prompt v7 -> Teams personal bot chat | Actual tool call, text only; no widget or Refresh. |
 
-The ordinary agent's version 7 publication API returned HTTP 200 with title and Teams app identifiers. Generated-package inspection confirmed the intended bot identity; endpoint readback confirmed 100% traffic pinned to version 7, Activity and Responses protocols, and Entra plus BotServiceRbac authorization. **Visibility is verified in both hosts:** the agent appeared in Copilot's Agents menu and opened in its own Teams personal chat. The Copilot route and Teams app ID matched the publication response. The earlier `publish_approval_status: not_published` readback and Graph catalog HTTP 403 did not prevent this UI discovery.
+The latest text-only Copilot result supersedes earlier blank-response diagnostics. Both Foundry channel cases used **direct MCP, not Toolbox**. They retained the original version-7 publication, Responses/Activity and Entra/BotServiceRbac. These are two client surfaces of the same agent.
 
-**MCP Apps conclusions remain unresolved.** Initial widget, tool-record, and greeting probes used a defective Bot Service messaging URL: it omitted the required `api-version` query. Copilot returned blank bubbles and later showed `timeout error after 45000ms`; Teams had no bot reply. The correlated log window contained no MCP POST, widget, lookup, or auth-rejection events. These initial results cannot establish a product rendering limitation.
+The direct control's original **SpecificApp/home-tenant restriction was restored and reloaded** after the successful comparison; developer mode was disabled. The pass is not a claim that the restored binding was separately proven to work. Authentication, scopes, one-user deployment audience and tenant security policies were not removed.
 
-The lab now supplies `api-version=2025-05-15-preview`, matching [azd's Activity messaging endpoint](https://github.com/Azure/azure-dev/blob/main/cli/azd/extensions/azure.ai.agents/internal/pkg/botservice/botservice.go). The bot was redeployed and the exact URL and identity read back. The corrected-route Copilot greeting reached a **User Sign-in** card instead of remaining blank. Selecting the already-signed-in lab account returned to the same agent conversation without credentials or MFA. An unchanged greeting retry then delivered an explicit Azure OpenAI `content_filter` error. No filter was changed. A normal fresh widget request was not sent because native composer focus could not be verified.
+Microsoft documents [MCP Apps for declarative-agent MCP plugins](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-mcp-apps). That does not automatically establish support through a published Foundry agent. The separate [hosted SDK/reference-consumer proof](../hosted/README.md) has not been published to Teams or M365.
 
-Direct API greeting controls still succeeded: version 7 with MCP configured took 35.69 seconds; version 1 without tools took 2.70 seconds. These are single-run diagnostics, not a benchmark or proof of the channel timeout's cause. A warm version-7 UI retry overlapped a diagnostic endpoint switch and is excluded from version-matched conclusions. A subsequent version-1 UI prompt was not sent because composer focus could not be verified. The endpoint is restored to version 7 after diagnostics.
-
-The positive control has a real, home-tenant, single-app SSO registration. Its ZIP passed schema validation and Developer Portal import (`No issues found`). Teams rejected user sideloading with **`Uploading custom apps is not allowed`**. That policy remains unchanged.
-
-The separately authorized [administrator-governed deployment](https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry#upload-custom-agent) succeeded with both **Publish** and **Install** restricted to the exact test administrator and the default security template retained. The completion page confirmed both assignments. Microsoft [distinguishes this governed path from user sideloading](https://learn.microsoft.com/microsoftteams/teams-custom-app-policies-and-settings#how-the-distribution-method-affects-the-preview-setting).
-
-The control appeared in Copilot's catalog and opened through its native catalog button. Its first opening displayed a load error; after one refresh it exposed the configured conversation starter. The `control-first` request received a text response saying the connector/tool was unavailable in the session, not a live widget. Deployment and chat availability are therefore verified, but successful MCP tool discovery/authentication and rendering are not. Managed-harness channel tests remain blocked by subscription preview enablement.
-
-The diagnostic pinned package uses only `show_table`, with its schema and UI metadata taken from the authenticated MCP `tools/list` capture rather than re-created by hand. It preserves the control app ID, OAuth registration, and exact-user assignment. Generate this separately labeled package with:
-
-```powershell
-python -m caldova.publish control-package --pin-widget-from evidence\mcp-direct-discovery.json
-```
-
-This produces package version `1.0.1` with starter run ID `control-pinned`; the dynamic baseline uses version `1.0.0` and `control-first`. Preserve the baseline ZIP privately before replacing the local package. Update the existing governed app rather than creating a new identity or enabling user sideloading. The [documented pinned MCP configuration](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-dynamic-tool-discovery#plugin-manifest-differences) is a diagnostic comparison, not a successful rendering result by itself.
-
-The bounded pinned diagnostic was executed after the admin center showed version `1.0.1`, retained single-user assignment, and Copilot exposed the new `control-pinned` starter. It also returned a text response saying the tool was unavailable in that session, without a widget or connector sign-in card. Application logs from 22:56 UTC through a verified 22:59:31 UTC watermark contained no matching MCP, tool, resource, auth-rejection, metadata, or run-ID event. A separate health probe established log freshness. This does not establish whether discovery, authentication, or ingress was attempted upstream, or where the integration failed. Do not infer MCP Apps non-support from either control result.
-
-**App-binding compatibility remains unresolved.** The [OAuth/MCP authentication guide](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-oauth#use-the-teams-developer-portal) warns that specific Teams-app registration bindings can cause 404s in Copilot and recommends Any Teams app. The [Entra SSO guide](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-entra-sso#use-the-teams-developer-portal) still describes binding to an app. This lab uses Entra SSO and retains its approved specific-app binding; applying the OAuth warning here requires a separately authorized test, not an assumed fix. Any Teams app broadens registration applicability even if the control's deployment audience remains one user.
-
-See the [sanitized channel observations](observations.json). Private screenshots and native UI snapshots are retained under ignored `evidence/m365-*`. Pre-correction host screenshots were opened to verify those visible results. The final pinned response is evidenced by a native accessibility snapshot; screenshot capture was refused because the lab window was not foreground. No screenshot, generated manifest, or tenant identifier is published here.
-
-The templates passed instance validation against the linked Microsoft JSON schemas. This is not proof of successful registration, installation, authentication, or rendering.
-
-Backend UI-resource probes distinguish the routes: direct MCP `resources/read` returned `ui://caldova/table`, while the catalog Toolbox preserved the tool's `_meta.ui.resourceUri` but returned `No resource provider handles URI 'ui://caldova/table'` for the same resource read. Private evidence is in `evidence/mcp-direct-auth-control.json` and `evidence/toolbox-ui-resource.json`. This is an observed Toolbox resource-forwarding failure, not a conclusion about direct-MCP rendering in Microsoft 365. The published version 7 deliberately uses direct MCP.
+See [current evidence and route distinctions](../docs/results.md#mcp-apps-evidence) and the [sanitized channel record](observations.json). Earlier diagnostics are explicitly historical in that record; raw screenshots, identity/configuration readback and server logs remain private.
 
 ## Publish the ordinary Foundry agent
 
-Run commands from the repository root with its Python environment activated. Existing Azure CLI credentials and ignored `.azure/lab.json` must be available. The helper uses the lab subscription explicitly for ARM operations.
+Run from the repository root with its Python environment activated, existing Azure CLI credentials and private `.azure/lab.json`:
 
 ```powershell
 python -m caldova.publish bot
-python -m caldova.publish publish --expected-version <verified-widget-agent-version>
+python -m caldova.publish publish --expected-version <verified-agent-version>
 ```
 
-The bot command runs a scoped ARM what-if before deployment. The publish command refuses a mismatched latest version or bot identity, pins endpoint traffic to the specified immutable version, downloads the generated package, checks its bot ID, and publishes with `publishScope: Shared` only. It verifies that pinning preserves the existing protocols and authorization. It does not create agent versions. Coordinate with the backend test runner before selecting the version for channel tests.
+The bot helper previews scoped ARM changes. Publication refuses a mismatched latest version or bot identity, pins the specified immutable version, preserves protocols/authentication, downloads and checks the package, and uses `publishScope: Shared`. It does not create agent versions. Coordinate the publication pin with ongoing experiments.
 
-Generated state is saved in `.azure/m365-state.json`; the Foundry package is `.azure/foundry-app.zip`. Private responses and manifest readback are saved under `evidence/m365-*`. A successful publication API response is only a provisioning result, not an MCP Apps pass. See Microsoft's [REST publishing procedure](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot-virtual-network).
+State is written to `.azure/m365-state.json`; the package is `.azure/foundry-app.zip`. Do not repeat a successful publish merely to test UI availability: duplicate package versions are rejected. Inspect the existing app. Follow Microsoft's [publishing procedure](https://learn.microsoft.com/azure/foundry/agents/how-to/publish-copilot-virtual-network).
 
-The lab publication uses app package version `1.0.0`. Do not rerun a successful publish to test availability: the service rejects duplicate package versions. Inspect the existing app instead. A deliberate metadata update requires an incremented package version; changing backend traffic uses the agent endpoint selector.
+The Bot Service messaging URL must include `?api-version=2025-05-15-preview`, as in [azd's publishing implementation](https://github.com/Azure/azure-dev/blob/main/cli/azd/extensions/azure.ai.agents/internal/pkg/botservice/botservice.go). Pre-correction failures are excluded from rendering conclusions.
 
-### Prepare native ordinary-agent prompt commands
-
-The offline helper derives a separate package from the existing Foundry-generated ZIP:
+### Prepare ordinary-agent prompt commands
 
 ```powershell
 python -m caldova.publish ordinary-command-package
 ```
 
-It writes `.azure/foundry-command-app.zip` without overwriting `.azure/foundry-app.zip` or an existing output. Only the package patch version and the ordinary bot's `commandLists` change. All app/bot IDs, `webApplicationInfo`, permissions, routing metadata, custom-engine fields, and other archive members are preserved. Existing command lists or missing personal/Copilot scopes cause an explicit error rather than replacement or scope expansion.
+This offline helper derives `.azure/foundry-command-app.zip` from the generated package without overwriting it. It adds personal/Copilot `type: prompt` command entries and increments the package patch version, preserving identity, authentication, permissions, routing and other archive members. Existing command lists or missing scopes produce an error.
 
-The **Hello** and **Show fixture table** commands are `type: prompt` entries in the existing personal and Copilot scopes. [Microsoft's prompt-starter guidance](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/conversations/prompt-starters) describes the **View Prompts** flyout and insertion of the full prompt into the composer. Selection is not evidence of a sent message: verify the actual app identity, account, and exact composer text before using native **Send**.
+The package passed [manifest 1.29](https://developer.microsoft.com/json-schemas/teams/v1.29/MicrosoftTeams.schema.json) and preservation checks. Package generation alone neither installs it nor changes backend traffic. [Prompt starters](https://learn.microsoft.com/microsoftteams/platform/bots/how-to/conversations/prompt-starters) insert text; verify the actual composer and Send action rather than treating selection as submission.
 
-Package creation does not update the app, call the Foundry publication API, change endpoint traffic, or bypass the latest-version guard. Validate the result against the [manifest 1.29 schema](https://developer.microsoft.com/json-schemas/teams/v1.29/MicrosoftTeams.schema.json). Upload only through an in-place update of the same editable governed app, after confirming its existing audience can be retained. If that action is unavailable, stop without creating a duplicate app, republishing a newer backend version, or broadening deployment.
+## Prepare the authenticated direct control
 
-The generated command package passed that schema validation and preservation checks. The inspected ordinary registry entry matched the original bot identity, showed version `1.0.0` and publisher type **Your users**, and exposed no **Update in store** action. The experiment stopped before upload: the distinct ZIP is prepared, but no command package was installed and no prompt command was invoked. This is an update-path limitation in the inspected UI, not evidence that the prompt commands fail at runtime.
+Reuse the intended signed-in browser session. User sideloading was prohibited in this lab; the authorized [administrator-governed route](https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry#upload-custom-agent) installed the control for exactly one user with the default policy. Do not relax tenant policy to install it.
 
-## Complete the positive control
-
-Reuse the existing verified lab-account browser session. Do not create repeated login windows. User sideloading remains prohibited; do not change that policy. The current control was deployed through the administrator-governed route with availability and installation scoped to one test user.
-
-1. In the [Teams developer portal](https://dev.teams.microsoft.com/tools), create a **Microsoft Entra SSO client ID registration** for the lab MCP URL and existing lab Entra app. Restrict it to the home organization. Record the generated auth config ID and Application ID URI privately.
-2. Follow [Microsoft's SSO configuration procedure](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-entra-sso). The `control-sso` command adds the generated URI, consent redirect, and token-store preauthorization while retaining existing identifiers, roles, scopes, and clients. It verifies the additive settings by reading the app back. Check the issued token's audience against the fixture's validation; do not weaken issuer, audience, or permission checks.
-3. Set the real registration ID and HTTPS fixture URL, then generate the package:
+1. Create a Microsoft Entra SSO registration in the [Teams developer portal](https://dev.teams.microsoft.com/tools) for the existing lab API. Retain the home-organization restriction and record its generated configuration ID and Application ID URI privately.
+2. Follow the [SSO configuration procedure](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-entra-sso). The helper adds the generated URI, consent redirect and token-store preauthorization while retaining existing roles/scopes/clients. It does not weaken the server's issuer, audience or permission checks.
+3. Generate the package using real local values:
 
 ```powershell
 $env:CALDOVA_AUTH_CONFIG_ID = '<actual-registration-id>'
@@ -85,27 +59,20 @@ python -m caldova.publish control-sso
 python -m caldova.publish control-package
 ```
 
-The resulting `.azure/control-app.zip` contains the manifests and generated PNG icons. Its stable app ID is stored in `.azure/m365-state.json`. Record and preserve the approved SSO registration restriction; review the unresolved MCP app-binding compatibility note above rather than assuming successful registration proves runtime compatibility. The package requires `OAuthPluginVault`; there is no anonymous-auth fallback. Sideload only where permitted for the test user, following the [declarative-agent development procedure](https://learn.microsoft.com/microsoft-365/copilot/extensibility/build-mcp-plugins). Stop on policy or consent failures; do not change tenant-wide settings.
+The package requires `OAuthPluginVault`; there is no anonymous fallback. Its stable app identity is kept in private state. Schema validation and portal import are prerequisites, not proof of working authentication or rendering.
 
-For an already deployed control, open its actual catalog entry rather than creating another app or synthesizing a launch ID. In environments where user sideloading is prohibited, an authorized administrator can use the documented **Agents > All agents > Add agent** route only after verifying that both availability and installation are restricted to the intended test user. Preserve the default security policy and review requested permissions before finishing.
+The [OAuth/MCP guidance](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-authentication-oauth#use-the-teams-developer-portal) discusses specific-app binding limitations. In this lab the successful Any Teams app comparison was explicitly authorized, persisted/read back before the request, and rolled back afterward. It is not a standing instruction to broaden another registration.
 
-For the ordinary agent, follow Microsoft's [published-agent runtime troubleshooting](https://learn.microsoft.com/azure/foundry/agents/how-to/troubleshoot-publish-copilot) before repeating widget probes. A fresh greeting must return through the channel first. No resource permission was broadened speculatively: the agent identity was enabled, and the tested MCP connection explicitly used project-managed identity.
-
-## UI acceptance criteria
-
-First open **Caldova MCP Control** in [Microsoft 365 Copilot](https://m365.cloud.microsoft/chat). Ask for the live fixture table with a fresh run ID. Capture the rendered widget and its initial counter, click **Refresh**, and capture the changed server counter with the same run ID. Correlate this with the server's tool-call trace and resource fetch.
-
-Only then repeat with **Caldova Prompt Lab**, first in Copilot web and then in the agent's personal chat in [Teams web](https://teams.microsoft.com). The Copilot app embedded inside Teams is a different surface. Confirm the active backend agent version, route, and run ID for each case. Repeat one discovery, skill-loading, and large-result probe through each channel without inferring backend behavior from final text alone.
-
-An MCP Apps pass requires a visible live widget and its refresh-to-server round trip. Text, JSON, an image, a card, an external link, or a successful HTTP response is not a pass. Keep direct MCP, Toolbox, and Tool Search routes separate. A blocked positive control leaves dependent UI conclusions blocked, not unsupported. See [MCP Apps support and requirements](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-mcp-apps).
-
-Keep screenshots and raw responses private. Persist each case immediately with its surface, run ID, agent/model/toolbox versions, expected observation, actual observation, and evidence paths. Do not publish tenant IDs, account details, or generated manifests.
-
-## Checks and cleanup
+For a separately labeled pinned diagnostic:
 
 ```powershell
-python -m unittest discover -s m365 -v
-ruff check caldova\publish.py m365
+python -m caldova.publish control-package --pin-widget-from evidence\mcp-direct-discovery.json
 ```
 
-Keep the lab available for review. When explicitly requested, uninstall only the two lab apps, remove only their SSO registration, and delete only `caldova-prompt-bot` from the lab resource group. Do not delete or modify unrelated apps, bot resources, or tenant policies.
+This uses the authenticated `show_table` descriptor, including UI metadata, rather than a hand-recreated schema. Preserve the baseline privately and update only the intended existing governed app. Do not infer success from changed package metadata.
+
+## Rendering acceptance criteria
+
+Open the actual agent's catalog entry; verify the server/agent identity and version. Submit a fresh run ID once. Require a live widget, an actual Refresh click and a changed result from the source server. Text, JSON, a model's rendering claim, an image, a link or HTTP 200 is not a rendering pass.
+
+Keep the direct declarative plugin, direct Foundry prompt, Toolbox and hosted SDK routes distinct. Test Teams personal bot chat separately from Copilot embedded inside Teams. Preserve configuration and authentication throughout; record an inaccessible UI or unverified submission as blocked, not as product non-support.

@@ -7,13 +7,15 @@ A reproducible Foundry Prompt Agent lab for four questions:
 3. Do MCP Apps render when the same Foundry agent is published to Microsoft 365 Copilot and Teams?
 4. Does the harness automatically offload large MCP responses to files?
 
-**[Read the observed results](docs/results.md).** Tool search works in the deployed ordinary Prompt Agent. Skill resource delivery passes, but the tested ordinary-agent skill-use cases fail, including explicit preview-header probes; the runtime cause remains unresolved. A revised compact extraction task succeeds at 32 KiB and retrieves a previously unreported value without refetching; this does not prove file offload. The managed Copilot harness is subscription-gated. The same ordinary agent is visible in Copilot and Teams, but MCP Apps rendering remains unverified: the corrected Copilot channel returned a service content-filter error, and the deployed declarative control reported its connector unavailable.
+**[Read the current results](docs/results.md) and [hosted implementation](hosted/README.md).** A Foundry-hosted GitHub Copilot SDK agent rendered an MCP App in a reference browser through its experimental native MCP Apps APIs; a real Refresh advanced the counter. The hosted SDK also automatically offloaded 32/256-KiB remote MCP results to verified files. This is not the gated Foundry-managed Copilot prompt harness, whose behavior remains unmeasured.
+
+The ordinary Foundry prompt agent returned text only in the playground, M365 Copilot and Teams. Toolbox tool calls worked, but its advertised UI resource could not be read. A direct M365 declarative-plugin control rendered successfully during a bounded authentication-binding comparison. These are distinct paths, not interchangeable support guarantees.
 
 ## Architecture
 
 `infra/main.bicep` provisions only `rg-caldova-demo`: a new Foundry account/project, a shared `gpt-5-mini` model deployment, an authenticated synthetic MCP server on Container Apps, a private image registry, and logs. The lab uses Entra tokens, not embedded API keys.
 
-`caldova-prompt` omits the harness property. `caldova-copilot` requests `github_copilot_preview` with the required preview opt-in header. If the service refuses that harness, the experiment records the refusal; it never silently substitutes another runtime.
+`caldova-prompt` omits the harness property. New `caldova-copilot` creation requests use the canonical `microsoft_copilot_preview` discriminator with `Foundry-Features: MicrosoftCopilot=V1Preview`. Historical evidence also includes the legacy `github_copilot_preview` pair. Both were explicitly refused in the tested Central US project; the experiment records refusal rather than substituting another runtime.
 
 The original account is in East US 2. A later public harness-region policy excluded that region, so the lab added a separate Central US Foundry account/project/model inside the same resource group. Its managed-harness creation was also refused. The existing MCP server and published East US 2 agent were not moved or repinned. [Regional controls](docs/results.md#supported-region-control) distinguish the region correction from the remaining subscription gate.
 
@@ -37,7 +39,7 @@ Do not keep launching login flows. Use the existing CLI session; if a browser re
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\ruff.exe check caldova tests m365
+.\.venv\Scripts\ruff.exe check caldova tests m365 hosted
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 .\.venv\Scripts\python.exe -m unittest discover -s m365 -p "test_*.py" -v
 az bicep build --file infra\main.bicep
@@ -114,7 +116,7 @@ Connections, agent versions, skill versions, and Toolbox versions are data-plane
 
 Requests are recorded before transport, including the explicit `Foundry-Features` value but not authorization headers; responses are saved before interpretation. Repeated runs get distinct evidence files. Model calls incur usage charges. The payload ladder ends at 1 MiB and stops escalation after a service error. Extraction requires exactly the BEGIN and MIDDLE values; the follow-up requests the withheld END value and rejects a fresh `large_result` call as proof of retention.
 
-Discovery creates explicit agent versions but does not change a published endpoint's pinned version. Keep the publication pin on the direct-MCP, widget-capable version unless deliberately testing a different route. [M365 setup and continuation](m365/README.md) cover the publishing helper, authenticated positive-control manifest templates, and outstanding access requirements.
+Discovery creates explicit agent versions but does not change a published endpoint's pinned version. Keep the publication pin on the verified direct-MCP version unless deliberately testing a different route. [M365 setup](m365/README.md) covers the publishing helper and authenticated positive control. [Hosted experiments](hosted/README.md) contain the separate SDK runtime, generic caller adapter and offload measurements.
 
 ## Interpret evidence correctly
 

@@ -171,6 +171,14 @@ class StatePathTests(unittest.TestCase):
             self.assertEqual(primary.read_text(), primary_before)
             saved = cloud.load_state(secondary)
             self.assertEqual(set(saved["agents"]), {"caldova-prompt", "caldova-copilot"})
+            self.assertEqual(saved["agents"]["caldova-copilot"]["definition"]["harness"],
+                             {"type": "microsoft_copilot_preview"})
+            harness_create = next(
+                call for call in client.request.call_args_list
+                if call.args[0] == "POST" and "/agents/caldova-copilot/" in call.args[1]
+            )
+            self.assertEqual(harness_create.kwargs["headers"],
+                             {"Foundry-Features": "MicrosoftCopilot=V1Preview"})
             urls = [call.args[1] for call in client.request.call_args_list]
             self.assertTrue(urls and all(url.startswith("https://central.test/") for url in urls))
             for call in record.call_args_list:

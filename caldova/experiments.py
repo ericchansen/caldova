@@ -60,7 +60,7 @@ def create_agents(*, state_path: Path = STATE) -> None:
     api = Foundry(state_path)
     definitions = {
         "caldova-prompt": {},
-        "caldova-copilot": {"harness": {"type": "github_copilot_preview"}},
+        "caldova-copilot": {"harness": {"type": "microsoft_copilot_preview"}},
     }
     failures = []
     try:
@@ -74,7 +74,7 @@ def create_agents(*, state_path: Path = STATE) -> None:
                 **extra,
             }
             try:
-                headers = {"Foundry-Features": "GitHubCopilot=V1Preview"} if extra else None
+                headers = {"Foundry-Features": "MicrosoftCopilot=V1Preview"} if extra else None
                 created = api.call("POST", f"/agents/{agent}/versions?api-version=v1",
                                    name=f"create-{agent}", body={"definition": definition}, headers=headers)
                 readback = api.call("GET", f"/agents/{agent}/versions/{created['version']}?api-version=v1",

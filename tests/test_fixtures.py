@@ -35,6 +35,7 @@ class ProtocolTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(tools), 26)
         widget = next(tool for tool in tools if tool.name == "show_table")
         self.assertEqual(widget.meta["ui"]["resourceUri"], "ui://caldova/table")
+        self.assertEqual(widget.meta["ui"]["visibility"], ["model", "app"])
         resources = await server.list_resources()
         self.assertEqual(str(resources[0].uri), "ui://caldova/table")
 
