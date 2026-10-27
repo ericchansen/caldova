@@ -89,7 +89,40 @@
         "direct_source_fallback": false,
         "error_visible_in_browser": false
       },
-      "hosted_m365_teams_publication": "NOT_TESTED",
+      "hosted_m365_teams_publication": {
+        "date": "2026-10-27",
+        "publication_scope": "Shared",
+        "endpoint_pin": "7",
+        "protocols": ["responses", "activity"],
+        "authorization": ["Entra", "BotServiceRbac"],
+        "m365": {
+          "run_id": "hosted-m365-20261027-b",
+          "sent_utc": "2026-10-27T21:07:01.1705804Z",
+          "source_call_utc": "2026-10-27T21:07:16.3190836Z",
+          "fresh_conversation": true,
+          "tool_call": "PASS",
+          "counter": 1,
+          "rendering": "TEXT_ONLY",
+          "widget_refresh_present": false
+        },
+        "teams_personal": {
+          "run_id": "hosted-teams-20261027-b",
+          "sent_utc": "2026-10-27T21:07:40.0602232Z",
+          "source_call_utc": "2026-10-27T21:07:48.4264602Z",
+          "fresh_conversation": false,
+          "tool_call": "PASS",
+          "counter": 1,
+          "rendering": "TEXT_ONLY",
+          "widget_refresh_present": false,
+          "actual_served_version": "NOT_EXPOSED"
+        },
+        "screenshots_opened_and_verified": true,
+        "source_resource_reads_in_scoped_window": 0,
+        "window_utc": ["2026-10-27T21:06:45Z", "2026-10-27T21:10:00Z"],
+        "original_prompt_publication_unchanged": true,
+        "qualification": "Endpoint pin verified, not exact per-request served version. Initial auth-pending requests excluded after adapter input_schema correction. No universal hosted-support conclusion.",
+        "customer_email_sent": false
+      },
       "customer_application": "NOT_TESTED"
     },
     "offload": {

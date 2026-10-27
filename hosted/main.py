@@ -270,7 +270,17 @@ async def execute(data):
 
 
 async def respond(request, context, _cancellation_signal):
-    data = Invocation.model_validate_json(await context.get_input_text() or "")
+    text = await context.get_input_text() or ""
+    if not text.lstrip().startswith("{"):
+        from channel import respond as channel_response
+
+        async def events():
+            async with lock, DefaultAzureCredential(exclude_interactive_browser_credential=True) as credential:
+                async for event in channel_response(text, request, context, credential, record):
+                    yield event
+
+        return events()
+    data = Invocation.model_validate_json(text)
     result = await execute(data)
     return TextResponse(context, request, text=json.dumps(result))
 

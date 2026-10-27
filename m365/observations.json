@@ -28,7 +28,17 @@
       "original_specific_app_binding_restored_and_reloaded": true,
       "developer_mode_disabled_after_test": true
     },
-    "hosted_sdk_publication": "NOT_TESTED",
+    "hosted_sdk_publication": {
+      "tested_date": "2026-10-27",
+      "endpoint_pin": "7",
+      "scope": "Shared",
+      "m365_copilot": {"run_id": "hosted-m365-20261027-b", "tool_called": true, "result": "TEXT_ONLY"},
+      "teams_personal": {"run_id": "hosted-teams-20261027-b", "tool_called": true, "result": "TEXT_ONLY"},
+      "screenshots_verified": true,
+      "source_calls_correlated": true,
+      "widget_refresh_present": false,
+      "qualification": "Teams reused its personal conversation; actual served version not available in traces. Endpoint pin is not session-version proof."
+    },
     "boundary": "Direct declarative-plugin rendering does not establish Foundry published-agent support."
   },
   "historical_note": "Earlier diagnostics below are preserved, not current channel outcomes.",

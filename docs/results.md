@@ -30,7 +30,8 @@ PASS below requires an actual widget and an actual Refresh-to-server round trip,
 | Source MCP -> Toolbox -> hosted custom handler -> reference host | PASS only with bypass | One hard-coded tool; HTML fetched directly from source MCP, not Toolbox. Real warm Refresh returned counter 2. |
 | Source MCP -> hosted native Copilot SDK -> generic adapter -> reference host | PASS | Real UI showed counter 1; actual iframe Refresh produced counter 2. Native SDK catalog had 26 tools; separate model probe selected both UI and ordinary tools. |
 | Source MCP -> Toolbox -> hosted native SDK -> reference host | Resource/render FAIL | Tool returned counter 1; no widget. The correlated hosted runtime log recorded the same resource-provider error, with no source fallback. |
-| Hosted SDK agent -> published Teams/M365 channel | NOT TESTED | The custom reference consumer does not establish support in those channels. |
+| Hosted SDK agent -> published M365 Copilot | No rendering pass | Fresh conversation after publication/pin correction; real tool call, text only, no widget/Refresh. |
+| Hosted SDK agent -> published Teams personal bot | No rendering pass; served-version qualification | Real tool call, text only, no widget/Refresh. Existing personal conversation; its actual served version was not exposed in available traces. |
 | Customer's actual MCP server and application | NOT TESTED | All runtime experiments used the authenticated synthetic fixture. |
 
 ### Same agent, different client contract
@@ -60,6 +61,25 @@ The native direct UI proof used `native-ui-direct-20261027-a`: counter 1, then a
 The pure native Toolbox comparison used `native-ui-toolbox-20261027-a`. The browser received a successful tool result but no widget or visible error explanation. The hosted log at 01:47:21 UTC independently identified `session.mcp.apps.readResource` failing with `No resource provider handles URI 'ui://caldova/table'`; its corresponding Responses request returned HTTP 500. No fallback or repeat call was used.
 
 One configured source server and one live UI bundle were exercised. Dynamic tool/URI routing has unit coverage, but multiple live servers, production permissions, arbitrary UI packages and catalog-scale performance remain unvalidated.
+
+### Hosted publication to M365 and Teams
+
+The isolated **Caldova Hosted Lab** was published through Foundry's Microsoft 365 API using `Shared` (Just you) scope, a separate Bot Service resource and the hosted agent's own identity. Endpoint readback retained Responses/Entra and added Activity/BotServiceRbac. The ordinary prompt agent's endpoint, identity and authentication remained unchanged.
+
+The previous JSON-only experiment handler was not a chat interface. [channel.py](../hosted/channel.py) adds natural-language SDK turns and emits standard Responses MCP catalog/call items plus the final answer. The corrected version maps MCP `inputSchema` to Responses `input_schema`, retains tool UI metadata and includes the structured tool result in the MCP call output. A version-pinned direct smoke verified those fields and actual tool execution before the fresh client probes. This is a lab transport adapter, not an asserted native Activity-channel MCP Apps contract.
+
+Initial `-a` prompts stopped at Foundry sign-in cards and later resumed. They are excluded from the fresh comparison: an adapter-schema correction and endpoint pin change occurred while authentication was pending. Cached-account sign-in completed without entering credentials or changing scopes.
+
+| Published client | Fresh request sent (UTC) | Source MCP call (UTC) | Visible result |
+| --- | --- | --- | --- |
+| M365 Copilot, new conversation | 21:07:01 | 21:07:16 | Text-only rows/counter 1; no widget or Refresh |
+| Teams, existing personal bot conversation | 21:07:40 | 21:07:48 | Text-only rows/counter 1; no widget or Refresh |
+
+Run IDs were `hosted-m365-20261027-b` and `hosted-teams-20261027-b`. Screenshots were captured, opened and visually inspected. Source logs confirm both `show_table` calls; no `resources/read` appeared in the scoped 21:06:45-21:10:00 window. Model statements such as "Interactive MCP App displayed" were contradicted by the actual UI and are not rendering evidence.
+
+The endpoint was pinned to corrected hosted version 7 throughout the fresh requests. **Exact served-version attribution remains limited, particularly for the reused Teams conversation:** session listing returned only older sessions and the available platform request logs did not expose a served version. No session reset, speculative permission change or additional prompt was used to hide this limitation. The evidence supports "the tested published hosted path returned text only", not "every hosted implementation is unsupported" or a fully version-matched negative test.
+
+For communication: do not propose merely switching to hosted as a verified M365/Teams MCP Apps solution. The custom reference-browser pass and hosted automatic-offload findings remain valid, separate results.
 
 ## Large responses and offload
 
@@ -96,4 +116,4 @@ The separate hosted SDK agent did run in Central US. An East US 2 hosted candida
 
 Private evidence includes `hosted-offload-verified-assessment.json`, `hosted-ui-verified-assessment.json`, `hosted-native-apps-direct-result.json`, the native UI snapshots, `foundry-published-b-*`, `foundry-ui-negotiated-*` and `m365-anyapp-debug-comparison-correlated-*`. The [public structured record](observations.json) contains sanitized measurements; historical failures are not the current result.
 
-The original publication and authentication restrictions were retained/restored. No customer message was sent. Lab resources remain available for review and may incur charges. Managed-harness access, its skill/offload behavior, and hosted publication to Teams/M365 remain unverified; none should be silently converted into a pass or a universal failure.
+The original publication and authentication restrictions were retained/restored. No customer message was sent. Lab resources remain available for review and may incur charges. Managed-harness access and its skill/offload behavior remain unverified. Hosted M365/Teams requests now have actual text-only observations, with the served-version qualification above; none establishes a universal product failure.

@@ -1,6 +1,7 @@
 targetScope = 'resourceGroup'
 
 param botName string = 'caldova-prompt-bot'
+param displayName string = 'Caldova Prompt Lab'
 param agentClientId string
 param tenantId string
 param messagingEndpoint string
@@ -13,7 +14,7 @@ resource bot 'Microsoft.BotService/botServices@2022-09-15' = {
     name: 'F0'
   }
   properties: {
-    displayName: 'Caldova Prompt Lab'
+    displayName: displayName
     endpoint: messagingEndpoint
     msaAppId: agentClientId
     msaAppTenantId: tenantId

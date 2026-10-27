@@ -20,10 +20,16 @@ def deploy(image: str, *, state_path=Path(".azure/harness-region.json"),
         if not image.startswith(f"{registry}/caldova-hosted@sha256:"):
             raise ValueError("Use the immutable caldova-hosted image in this lab's registry")
         endpoint = api.endpoint
-        if not output_state.exists():
-            existing = api.client.get(endpoint + f"/agents/{NAME}?api-version=v1")
-            if existing.status_code != 404:
-                raise RuntimeError(f"Refusing untracked agent name; lookup returned {existing.status_code}")
+        existing = api.client.get(endpoint + f"/agents/{NAME}?api-version=v1")
+        previous_endpoint = None
+        if output_state.exists():
+            saved = json.loads(output_state.read_text())
+            if saved["name"] != NAME or saved["project_endpoint"] != endpoint:
+                raise RuntimeError("Deployment state identifies a different hosted agent")
+            existing.raise_for_status()
+            previous_endpoint = existing.json()["agent_endpoint"]
+        elif existing.status_code != 404:
+            raise RuntimeError(f"Refusing untracked agent name; lookup returned {existing.status_code}")
         definition = {
             "kind": "hosted",
             "container_configuration": {"image": image},
@@ -67,8 +73,13 @@ def deploy(image: str, *, state_path=Path(".azure/harness-region.json"),
             "PATCH", f"/agents/{NAME}?api-version=v1", name="hosted-route",
             body={"agent_endpoint": {
                 "version_selector": selector,
-                "protocol_configuration": {"responses": {}},
-                "authorization_schemes": [{"type": "Entra", "isolation_key_source": {"kind": "Entra"}}],
+                "protocol_configuration": (
+                    previous_endpoint["protocol_configuration"] if previous_endpoint else {"responses": {}}
+                ),
+                "authorization_schemes": (
+                    previous_endpoint["authorization_schemes"] if previous_endpoint
+                    else [{"type": "Entra", "isolation_key_source": {"kind": "Entra"}}]
+                ),
             }}, headers={"Content-Type": "application/merge-patch+json"},
         )
         readback = api.call(
@@ -78,6 +89,11 @@ def deploy(image: str, *, state_path=Path(".azure/harness-region.json"),
                 or not any(x["type"] == "Entra"
                            for x in readback["agent_endpoint"]["authorization_schemes"])):
             raise RuntimeError("Hosted routing or Entra authorization readback mismatch")
+        if previous_endpoint and any(
+            readback["agent_endpoint"][key] != previous_endpoint[key]
+            for key in ("protocol_configuration", "authorization_schemes")
+        ):
+            raise RuntimeError("Deployment changed existing hosted channel protocols or authentication")
         state["readback"] = readback
         save_state(state, output_state)
         print(f"Hosted agent active: {NAME}, version {created['version']}")

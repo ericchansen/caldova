@@ -10,11 +10,13 @@ This directory contains an authenticated **direct declarative-agent MCP plugin c
 | Source MCP -> Foundry prompt v7 -> M365 Copilot | Actual tool call, text only; no widget or Refresh. |
 | Source MCP -> same Foundry prompt v7 -> Teams personal bot chat | Actual tool call, text only; no widget or Refresh. |
 
+On October 27, the separate **Caldova Hosted Lab** was also published and tested in both clients. Both hosted requests invoked `show_table` and displayed text-only results. Screenshots and source logs were correlated. The endpoint was pinned to corrected hosted version 7, but exact served-version attribution for the reused Teams conversation remains unresolved. [Detailed hosted channel findings](../docs/results.md#hosted-publication-to-m365-and-teams).
+
 The latest text-only Copilot result supersedes earlier blank-response diagnostics. Both Foundry channel cases used **direct MCP, not Toolbox**. They retained the original version-7 publication, Responses/Activity and Entra/BotServiceRbac. These are two client surfaces of the same agent.
 
 The direct control's original **SpecificApp/home-tenant restriction was restored and reloaded** after the successful comparison; developer mode was disabled. The pass is not a claim that the restored binding was separately proven to work. Authentication, scopes, one-user deployment audience and tenant security policies were not removed.
 
-Microsoft documents [MCP Apps for declarative-agent MCP plugins](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-mcp-apps). That does not automatically establish support through a published Foundry agent. The separate [hosted SDK/reference-consumer proof](../hosted/README.md) has not been published to Teams or M365.
+Microsoft documents [MCP Apps for declarative-agent MCP plugins](https://learn.microsoft.com/microsoft-365/copilot/extensibility/plugin-mcp-apps). That does not automatically establish support through a published Foundry agent. The [hosted SDK/reference-consumer proof](../hosted/README.md) rendered successfully, whereas the actual published hosted client tests above did not.
 
 See [current evidence and route distinctions](../docs/results.md#mcp-apps-evidence) and the [sanitized channel record](observations.json). Earlier diagnostics are explicitly historical in that record; raw screenshots, identity/configuration readback and server logs remain private.
 

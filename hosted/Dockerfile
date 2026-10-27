@@ -9,6 +9,7 @@ ENV COPILOT_CLI_PATH=/usr/local/bin/copilot
 ENV PYTHONNOUSERSITE=1
 COPY main.py .
 COPY native_apps.py .
+COPY channel.py .
 COPY check_image.py .
 RUN /usr/local/bin/copilot --version && python check_image.py
 EXPOSE 8088

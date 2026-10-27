@@ -86,6 +86,22 @@ The URL is the hosted agent's dedicated endpoint:
 
 For model selection rather than explicit UI tool calls, the `native_apps` probe uses `session.send_and_wait` with the full native MCP catalog and captures the actual SDK tool events. For widget-originated calls, the generic adapter uses the SDK's app tool-call API directly, without another model turn.
 
+### Published-channel probe
+
+[channel.py](channel.py) accepts ordinary text rather than the JSON experiment envelope. It runs the native SDK model against direct MCP and emits Responses `mcp_list_tools`, `mcp_call` and message items. Tool descriptors retain `_meta.ui`; tool output contains the original structured result. It does not convert an MCP App into an Adaptive Card, host an external UI, or substitute the direct declarative plugin. Preserved metadata alone does not establish an Activity-channel rendering contract.
+
+After verifying a natural-language request against the hosted Responses endpoint, publish only the isolated hosted experiment:
+
+```powershell
+.\.venv\Scripts\python.exe -m hosted.publish
+```
+
+The helper previews and creates `caldova-hosted-bot` with the existing parameterized Bicep template, verifies the generated package's identity, and requests `Shared` (Just you) publication. It retains Responses and Entra, adds Activity/BotServiceRbac through the publish API, and writes separate `.azure/hosted-m365-state.json`. It refuses an existing publication-state file instead of blindly submitting again. Existing ordinary-agent resources are not changed. Later hosted deployments retain the published protocols and authorization schemes.
+
+Actual client tests must open **Caldova Hosted Lab** in M365 Copilot and in Teams personal bot chat, use distinct run IDs, and inspect widget rendering and a real Refresh separately from tool execution. Never use the local reference consumer as a substitute for these tests.
+
+The completed October 27 client tests returned **text only in both clients**, despite real source MCP calls. No widget or Refresh control appeared. The endpoint was pinned to corrected version 7, but the available traces did not identify the exact served version for the existing Teams conversation. See the [complete channel evidence and qualification](../docs/results.md#hosted-publication-to-m365-and-teams). The custom-browser pass is not a verified published-channel solution.
+
 ## Observed large-output behavior
 
 The `offload` operation uses the SDK's native remote-MCP connection to Toolbox. It does **not** register a replacement `large_result` handler and does not set `large_output`. The source fixture returns raw synthetic text and creates no files.
@@ -180,6 +196,6 @@ The fixture's counter is process-local. After a scale-to-zero restart it resets;
 - The reference consumer is not the customer's application.
 - Native SDK RPC support is experimental and still needs an MCP Apps renderer and transport integration.
 - The custom single-tool workaround does not make Toolbox forward HTML resources.
-- The hosted agent has not been published to Teams or M365 as a native MCP Apps experience.
+- The hosted agent's published M365/Teams tests returned text only; no native MCP Apps channel pass was established.
 - The default Foundry prompt harness and the Foundry-managed Copilot harness are different from this hosted SDK runtime.
 - Raw evidence, tenant configuration, screenshots and tokens must not be committed.
