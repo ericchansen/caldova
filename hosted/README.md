@@ -2,6 +2,8 @@
 
 This folder contains the actual Python code used in the Foundry hosted-agent experiments. It is a lab, not a production agent framework.
 
+Later [M365-facing MCP facade and Teams-tab experiments](../channels/README.md) use this same hosted runtime and produced actual rendered/Refresh passes. They are separate from the built-in published-agent channel tests described below.
+
 **Start here to understand the caller:** the [official MCP Apps reference host](https://github.com/modelcontextprotocol/ext-apps/blob/266a9e3b70dbd4a4f0546dda95da2a2c1a8be4b7/examples/basic-host/src/implementation.ts) calls the tool and reads its advertised UI resource. Its `initializeApp` function loads the HTML into a sandbox and supplies the tool result through `AppBridge`. The model does not render HTML.
 
 | Component | Implementation | Responsibility |
@@ -85,6 +87,8 @@ The URL is the hosted agent's dedicated endpoint:
 `frontend_bridge.invoke` sends that request with an Entra token, requires a completed response, and decodes the JSON in its `output_text`. `respond` is the corresponding hosted entry point. This extra transport contract is application code, not an automatically generated Foundry MCP Apps endpoint.
 
 For model selection rather than explicit UI tool calls, the `native_apps` probe uses `session.send_and_wait` with the full native MCP catalog and captures the actual SDK tool events. For widget-originated calls, the generic adapter uses the SDK's app tool-call API directly, without another model turn.
+
+The later `delegated_rpc` operation runs a real SDK model turn for each requested tool call, checks that it made exactly that call with unchanged arguments, and returns the original structured result. The remote declarative facade and Teams tab use this operation to establish actual Foundry agent execution rather than only deterministic RPC dispatch. Their callbacks therefore also incur a model turn; the experiment is not latency-optimized.
 
 ### Published-channel probe
 

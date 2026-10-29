@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Caldova Foundry MCP Apps lab</title>
+</head>
+<body>
+  <h1>Caldova Foundry MCP Apps lab</h1>
+  <p>Teams-authenticated tab → hosted Foundry SDK/model → synthetic MCP source.</p>
+  <p>This is a custom tab renderer, not a claim of native M365 chat rendering.</p>
+  <button id="connect">Sign in with Teams and load App</button>
+  <p id="status" role="status">Ready. Open this app inside Teams.</p>
+  <div id="app"></div>
+  <h2>Tab evidence (no tokens)</h2>
+  <pre id="evidence"></pre>
+  <script type="module" src="/src/host.ts"></script>
+</body>
+</html>

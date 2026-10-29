@@ -1,0 +1,12 @@
+*
+!Dockerfile
+!package.json
+!package-lock.json
+!requirements.txt
+!server.py
+!index.html
+!sandbox.html
+!tsconfig.json
+!vite.config.js
+!src/
+!src/**

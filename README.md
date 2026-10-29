@@ -13,6 +13,8 @@ The ordinary Foundry prompt agent returned text only in the playground, M365 Cop
 
 The hosted agent was subsequently published as a separate personal-scope app. Actual M365 Copilot and Teams personal-chat requests both invoked the MCP tool but displayed text only, not a widget. The reference-browser success is therefore not a demonstrated published-channel solution. [Channel evidence and version-attribution limit](docs/results.md#hosted-publication-to-m365-and-teams).
 
+**Additional integration passes:** a declarative MCP plugin backed by an authenticated facade and the Foundry-hosted SDK rendered/refreshed the real App in both M365 Copilot web and Copilot inside Teams. A separate authenticated Teams personal tab also rendered/refreshed through Foundry. These are different integrations from Foundry's built-in publication: the first uses Copilot as the outer orchestrator and Foundry for delegated model execution; the second embeds an application-owned renderer in Teams. [Pathway matrix and test conditions](docs/results.md#additional-m365-and-teams-pathways).
+
 ## Architecture
 
 `infra/main.bicep` provisions only `rg-caldova-demo`: a new Foundry account/project, a shared `gpt-5-mini` model deployment, an authenticated synthetic MCP server on Container Apps, a private image registry, and logs. The lab uses Entra tokens, not embedded API keys.

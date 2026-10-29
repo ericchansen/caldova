@@ -1,0 +1,13 @@
+node_modules/
+dist/
+__pycache__/
+.pytest_cache/
+package/
+*.zip
+# Generated tenant-specific manifests/configuration must never be published.
+manifest.json
+*.generated.json
+*.parameters.json
+.env
+.env.*
+!.env.example

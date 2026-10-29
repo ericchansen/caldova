@@ -1,0 +1,8 @@
+*
+!pyproject.toml
+!caldova/
+!caldova/**
+!channels/
+channels/*
+!channels/facade.py
+**/__pycache__/

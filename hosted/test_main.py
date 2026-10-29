@@ -100,6 +100,28 @@ class NativeRoutingTests(unittest.IsolatedAsyncioTestCase):
         self.apps.call_tool.assert_not_called()
         self.apps.read_resource.assert_not_called()
 
+    async def test_delegated_tool_requires_exact_model_call_and_returns_raw_result(self):
+        @asynccontextmanager
+        async def connected(_route, _credential, callback):
+            async def send(*_args, **_kwargs):
+                for kind, data in [
+                    ("tool.execution_start", {"toolCallId": "a", "mcpToolName": "second",
+                                              "arguments": {"key": "value"}}),
+                    ("tool.execution_complete", {"toolCallId": "a", "success": True,
+                                                 "result": {"contents": [], "structuredContent": {"counter": 2}}}),
+                ]:
+                    callback(SimpleNamespace(type=SimpleNamespace(value=kind),
+                                             to_dict=lambda k=kind, d=data: {"type": k, "data": d}))
+            yield None, SimpleNamespace(
+                rpc=SimpleNamespace(mcp=SimpleNamespace(apps=self.apps)), send_and_wait=send,
+            )
+        with patch.object(self.module, "connected_session", connected):
+            data = hosted.Invocation(operation="delegated_rpc", run_id="test", rpc_method="tools/call",
+                                     rpc_tool="second", rpc_arguments={"key": "value"})
+            result = await self.module.rpc(data, None)
+        self.assertEqual(result["structuredContent"], {"counter": 2})
+        self.apps.call_tool.assert_not_called()
+
 
 class ChannelTests(unittest.TestCase):
     def test_channel_output_preserves_structured_result_and_ui_metadata(self):

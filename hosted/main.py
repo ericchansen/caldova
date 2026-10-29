@@ -36,7 +36,10 @@ class WidgetParams(BaseModel):
 
 
 class Invocation(WidgetParams):
-    operation: Literal["smoke", "auth", "catalog", "resource", "widget", "offload", "native_apps", "native_rpc"]
+    operation: Literal[
+        "smoke", "auth", "catalog", "resource", "widget", "offload",
+        "native_apps", "native_rpc", "delegated_rpc",
+    ]
     native_route: Literal["direct", "toolbox"] = "direct"
     rpc_method: Literal["tools/list", "tools/call", "resources/list", "resources/read"] = "tools/list"
     rpc_tool: str | None = None
@@ -228,7 +231,7 @@ async def execute(data):
         if data.operation == "native_apps":
             from native_apps import probe
             return await probe(data, credential, record)
-        if data.operation == "native_rpc":
+        if data.operation in {"native_rpc", "delegated_rpc"}:
             from native_apps import rpc
             return await rpc(data, credential)
         if data.operation == "auth":

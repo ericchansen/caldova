@@ -1,8 +1,59 @@
 # Foundry capability test results
 
-**Current checkpoint: October 27, 2026.** These are synthetic lab observations, not a general availability or support guarantee. The [sanitized record](observations.json) separates current outcomes from historical diagnostics. Raw service responses and UI evidence remain private.
+**Current checkpoint: October 28, 2026 (Pacific; some evidence timestamps are October 29 UTC).** These are synthetic lab observations, not a general availability or support guarantee. The [sanitized record](observations.json) separates current outcomes from historical diagnostics. Raw service responses and UI evidence remain private.
 
 **Bottom line:** a Foundry-hosted GitHub Copilot SDK agent can support an MCP Apps consumer through the SDK's experimental native APIs and a generic transport adapter. The ordinary Foundry prompt-agent route did not render Apps. Toolbox forwarded tool calls but failed to retrieve their advertised HTML resource. Automatic large-result offload was verified in the hosted SDK, not in the subscription-gated Foundry-managed Copilot harness.
+
+**The remaining-path investigation also produced actual native M365 web and Copilot-inside-Teams passes through a Foundry-backed declarative MCP plugin, plus an embedded Teams-tab pass.** All used the Foundry-hosted model runtime and real widget Refresh callbacks. They do not change the earlier text-only outcome for Foundry's built-in published-agent channel.
+
+## Additional M365 and Teams pathways
+
+| Integration | Foundry's role | Current observed result |
+| --- | --- | --- |
+| Direct declarative MCP plugin in M365 | None in the original control | PASS under the recorded bounded auth comparison |
+| Original direct declarative plugin inside Teams Copilot | None | Tool-error response under unchanged SpecificApp/HomeTenant; no rendering verdict |
+| Declarative MCP plugin -> remote facade -> hosted SDK | Delegated model execution plus native MCP tool/resource operations | PASS in M365 web AND Copilot inside Teams: visible App and actual Refresh, counter 1 to 2 in each |
+| Foundry built-in publication, ordinary prompt | Agent runtime | Text only in playground, M365 and Teams |
+| Foundry built-in publication, hosted SDK | Agent runtime | Text only in M365 and Teams; existing Teams session version attribution qualified |
+| Custom Microsoft 365 Agents SDK proxy -> Foundry | Agent runtime behind an application-owned channel proxy | Native Teams text/tool control passed. Native M365 reached the lab's channel allowlist gate. MCP Apps renderer integration is not implemented, not a tested rendering failure |
+| Copilot Studio -> authenticated Foundry-backed MCP connector | Delegated agent behind Studio orchestration | Connector created; actual delegated sign-in failed. Runtime/rendering blocked, not an MCP Apps failure |
+| Teams personal tab -> application-owned AppBridge -> hosted SDK | Delegated model execution and native MCP operations | PASS inside Teams: visible App and actual inner Refresh, counter 1 to 2 |
+
+### Native M365 through a Foundry-backed MCP plugin
+
+```text
+M365 declarative agent + native MCP Apps renderer
+  -> enterprise-hosted, Entra-authenticated MCP facade
+    -> Foundry hosted Responses endpoint
+      -> Copilot SDK model turn
+        -> source MCP tool
+```
+
+The model actually executes the delegated tool; this is not a facade returning synthetic answers without Foundry. Tool discovery and HTML reads use the hosted SDK's native MCP APIs. The facade never fetches HTML directly from the source server. [Implementation and boundaries](../channels/README.md).
+
+Initial SpecificApp tests returned token-store-error prose, without a raw diagnostic sufficient to prove an app-ID mismatch. Under a bounded AnyApp comparison the request reached the facade, but live logs showed discovery took 45-53 seconds and exceeded the client deadline. After startup catalog preloading and a warm facade replica, a control measured discovery at 0.188 seconds, and the actual corrected M365 case passed.
+
+Run `facade-m365-cached-20261028-a` displayed counter 1. A real widget Refresh was clicked at `2026-10-29T00:29:08.087Z`; visible counter 2 was verified at `00:29:26.915Z`. Source calls at `00:28:10.2837294Z` and `00:29:20.2621523Z` match both results. The source HTML read and both completed facade calls are also recorded. Screenshots were captured and opened.
+
+**Conditions:** corrected cached-discovery implementation, a warm facade, temporary Any Teams app registration applicability, home-tenant restriction, and exact single-user Publish/Install assignment. Full SpecificApp baseline restoration was verified at `00:31:31.055Z`; developer mode was off. This is not a pass under the restored SpecificApp setting and not a pure causal authentication A/B comparison.
+
+The same integration subsequently passed in **Copilot inside TeamsModern/web**, not personal bot chat. Run `facade-teams-20261028-a` rendered counter 1, an actual inner Refresh was clicked at `00:39:19.660Z`, and counter 2 was visibly verified. Source calls at `00:38:28.9110712Z` and `00:39:33.8833707Z` match the results. The temporary new-registration AnyApp/HomeTenant condition was restored to the full SpecificApp baseline at `00:40:19.841Z`. Screenshots were captured and opened. Malformed citation text appeared beneath the otherwise working widget; this was not a polished production UX.
+
+Copilot remains the outer orchestrator; Foundry executes delegated model turns. Downstream authorization uses application identity, not end-user OBO. Only synthetic data was tested.
+
+### Real Teams embedded web client
+
+The [Teams tab](../channels/tab/README.md) uses Teams SSO, a dedicated authenticated backend and an official AppBridge with a separate-origin sandbox. It invokes Foundry's `delegated_rpc` operation, including for actual widget callbacks. This is an application tab in Teams, not native Teams bot chat or Copilot chat.
+
+The first UI attempt exposed a lab timeout: the sandbox's first byte arrived at 38.879 seconds after the original 30-second readiness listener expired. The corrected bounded wait is 120 seconds and still checks the official message, exact iframe source and origin; no authentication or CSP restriction was relaxed.
+
+The corrected run `tab-172810d6a64b421788f5a564b8ec8fe7` rendered counter 1 inside TeamsModern/web. The actual inner Refresh was clicked at `00:22:05.589Z`, with visible counter 2 verified by `00:22:22.050Z`. Source calls at `00:21:43.2657617Z` and `00:22:18.3507335Z` correlate with the authenticated tab backend's two Foundry response IDs. Both screenshots were captured and opened.
+
+### Remaining boundaries
+
+The proxy's intentional text-only implementation must not be called an MCP Apps rendering failure. Native Teams personal-bot run `proxy-teams-20261028-a` returned `orchards-verified`; the source lookup at `00:57:24.4939966Z` and proxy completion at `00:57:29.2045995Z` confirm one real Foundry-backed MCP call. Its native M365 request returned the lab's own "This lab channel is not enabled" message. The original logs did not identify the incoming channel, so the allowlist was not broadened speculatively; a later diagnostic-only deployment is not a fix or a passing M365 test. The earlier Direct Line control also observed an acknowledgment timeout before the eventual text reply. No documented native custom-engine MCP Apps attachment/resource/callback contract was established.
+
+Studio's actual delegated connection reported "Unable to sign in. Please try again." The client, callback, scope, endpoints and unexpired service-side credential were checked without identifying a configuration defect; no Studio tool/runtime/rendering pass is claimed. The original direct-control agent was also exercised inside Teams Copilot under its unchanged SpecificApp/HomeTenant settings and returned tool-error prose, not a widget; it was not granted the temporary applicability used for the separate facade pass.
 
 ## All four questions
 

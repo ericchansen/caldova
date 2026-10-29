@@ -1,5 +1,7 @@
 """Probe SDK-native MCP Apps APIs without registering per-tool Python wrappers."""
 
+import json
+import logging
 import os
 import uuid
 from contextlib import asynccontextmanager
@@ -67,7 +69,14 @@ async def connected_session(route, credential, on_event=None):
 
 async def rpc(data, credential):
     """Generic transport adapter: SDK native APIs own discovery, scoping and tool execution."""
-    async with connected_session(data.native_route, credential) as (_, session):
+    events = []
+
+    def on_event(event):
+        if event.type.value in {"tool.execution_start", "tool.execution_complete"}:
+            events.append(event.to_dict())
+            logging.getLogger("caldova.delegated").warning(json.dumps(event.to_dict()))
+
+    async with connected_session(data.native_route, credential, on_event) as (_, session):
         catalog = await session.rpc.mcp.apps.list_tools(
             MCPAppsListToolsRequest(origin_server_name=SERVER_NAME, server_name=SERVER_NAME)
         )
@@ -76,6 +85,26 @@ async def rpc(data, credential):
         if data.rpc_method == "tools/call":
             if data.rpc_tool not in {tool["name"] for tool in catalog.tools}:
                 raise ValueError("Tool is not app-callable in this server's native SDK catalog")
+            if data.operation == "delegated_rpc":
+                await session.send_and_wait(
+                    f"Call exactly the MCP tool {data.rpc_tool} once, with these exact arguments: "
+                    f"{json.dumps(data.rpc_arguments)}. Do not call other tools. Then reply briefly.",
+                    timeout=120,
+                )
+                starts = [event["data"] for event in events if event["type"] == "tool.execution_start"]
+                if (len(starts) != 1 or starts[0].get("mcpToolName") != data.rpc_tool
+                        or starts[0].get("arguments") != data.rpc_arguments):
+                    raise RuntimeError("Delegated model did not make the exact requested single tool call")
+                completions = [event["data"] for event in events
+                               if event["type"] == "tool.execution_complete"
+                               and event["data"]["toolCallId"] == starts[0]["toolCallId"]]
+                if len(completions) != 1 or not completions[0].get("success"):
+                    raise RuntimeError("Delegated model tool execution failed")
+                result = completions[0]["result"]
+                return {
+                    "content": result["contents"], "isError": False,
+                    **({"structuredContent": result["structuredContent"]} if "structuredContent" in result else {}),
+                }
             return await session.rpc.mcp.apps.call_tool(MCPAppsCallToolRequest(
                 origin_server_name=SERVER_NAME, server_name=SERVER_NAME,
                 tool_name=data.rpc_tool, arguments=data.rpc_arguments,

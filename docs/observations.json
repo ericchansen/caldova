@@ -1,6 +1,86 @@
 {
   "current": {
-    "as_of": "2026-10-27",
+    "as_of": "2026-10-28",
+    "additional_pathways": {
+      "evidence_date_utc": "2026-10-29",
+      "foundry_backed_declarative": {
+        "runtime": "Real hosted Copilot SDK model turn per delegated tool call",
+        "source_html_bypass": false,
+        "discovery": "Snapshot preloaded from hosted SDK before accepting traffic",
+        "measured_discovery_seconds": 0.188,
+        "initial_discovery_failure_seconds": [45, 53],
+        "warm_facade_replica": true,
+        "auth_condition": "Temporary Any Teams app applicability, HomeTenant and exact single-user deployment retained",
+        "full_specific_app_restored": true,
+        "developer_mode_off": true,
+        "m365_web": {
+          "status": "RENDER_AND_REFRESH_PASS",
+          "run_id": "facade-m365-cached-20261028-a",
+          "counters": [1, 2],
+          "actual_refresh_click_utc": "2026-10-29T00:29:08.087Z",
+          "source_call_utc": ["2026-10-29T00:28:10.2837294Z", "2026-10-29T00:29:20.2621523Z"],
+          "screenshots_opened": true
+        },
+        "copilot_inside_teams": {
+          "status": "RENDER_AND_REFRESH_PASS",
+          "host": "TeamsModern/web Copilot app, not personal bot chat",
+          "run_id": "facade-teams-20261028-a",
+          "counters": [1, 2],
+          "actual_refresh_click_utc": "2026-10-29T00:39:19.660Z",
+          "source_call_utc": ["2026-10-29T00:38:28.9110712Z", "2026-10-29T00:39:33.8833707Z"],
+          "screenshots_opened": true,
+          "qualification": "Malformed citation text appeared beneath the working widget."
+        },
+        "boundary": "Copilot outer orchestration; Foundry delegated execution with application identity, not user OBO. Synthetic data only. No pass claimed under restored SpecificApp."
+      },
+      "embedded_teams_tab": {
+        "status": "RENDER_AND_REFRESH_PASS",
+        "host": "TeamsModern/web personal application tab, not native chat",
+        "auth": "Actual Teams SSO; dedicated backend validates token",
+        "run_id": "tab-172810d6a64b421788f5a564b8ec8fe7",
+        "counters": [1, 2],
+        "actual_refresh_click_utc": "2026-10-29T00:22:05.589Z",
+        "source_call_utc": ["2026-10-29T00:21:43.2657617Z", "2026-10-29T00:22:18.3507335Z"],
+        "screenshots_opened": true,
+        "initial_lab_failure": "30-second readiness listener expired before sandbox first byte at 38.879 seconds",
+        "corrected_readiness_seconds": 120,
+        "csp_or_auth_relaxed": false
+      },
+      "custom_agents_sdk_proxy": {
+        "sdk_version": "1.9.0",
+        "authenticated_text_invocation": "PASS",
+        "native_teams": {
+          "status": "TEXT_AND_TOOL_PASS",
+          "run_id": "proxy-teams-20261028-a",
+          "source_call_utc": "2026-10-29T00:57:24.4939966Z",
+          "visible_result": "orchards-verified"
+        },
+        "native_m365": {
+          "status": "LAB_CHANNEL_GATE",
+          "run_id": "proxy-m365-20261028-a",
+          "visible_result": "This lab channel is not enabled.",
+          "allowlist_fix_verified": false
+        },
+        "initial_channel_acknowledgment": "TIMEOUT_BEFORE_EVENTUAL_REPLY",
+        "mcp_apps_integration": "NOT_IMPLEMENTED_NO_VERIFIED_CHANNEL_CONTRACT",
+        "boundary": "Intentional text-only output is not an MCP Apps rendering failure."
+      },
+      "copilot_studio": {
+        "draft_and_mcp_connector_created": true,
+        "actual_delegated_connection": "BLOCKED",
+        "visible_error": "Unable to sign in. Please try again.",
+        "configuration_readback": "Client, callback, scopes, endpoints and credential expiry checked",
+        "runtime_and_rendering": "NOT_REACHED",
+        "credentials_or_tenant_policy_weakened": false
+      },
+      "original_direct_control_inside_teams": {
+        "run_id": "direct-teams-20261028-a",
+        "auth": "Original SpecificApp/HomeTenant unchanged",
+        "observed": "Assistant tool-error prose; no widget",
+        "rendering_support_conclusion": "BLOCKED_NOT_ESTABLISHED"
+      },
+      "customer_email_sent": false
+    },
     "scope": "Authenticated synthetic fixture; observed configurations, not universal support guarantees",
     "tools": {
       "status": "PASS",

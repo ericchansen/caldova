@@ -4,6 +4,8 @@ This directory contains an authenticated **direct declarative-agent MCP plugin c
 
 ## Current result
 
+**October 28 extension:** the Foundry-backed declarative MCP facade rendered/refreshed in both native M365 Copilot web and Copilot inside Teams, under the recorded temporary auth-applicability condition. A separate authenticated Teams personal tab also passed. These integrations are not Foundry's built-in custom-engine publication below. See the [complete pathway matrix](../docs/results.md#additional-m365-and-teams-pathways) and [new implementations](../channels/README.md).
+
 | Route | October 26 controlled result |
 | --- | --- |
 | Source MCP -> M365 declarative control | Rendered widget; real Refresh clicks advanced counters 1/2/3 during an authorized temporary Any Teams app authentication-binding comparison. |
